@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  hydra:
+    image: oryd/hydra:v2.2.0
+    ports:
+      - "4444:4444"
+      - "5555:5555"
+      - "4445:4445"
+    command: serve -c /etc/config/hydra/hydra.yml all --dev
+    volumes:
+      - type: bind
+        source: ./docker/hydra
+        target: /etc/config/hydra
+    environment:
+      - DSN={HYDRA_DSN}
+    restart: unless-stopped
+    depends_on:
+      - hydra-migrate
+
+  hydra-migrate:
+    image: oryd/hydra:v2.2.0
+    environment:
+      - DSN={HYDRA_DSN}
+    command: migrate -c /etc/config/hydra/hydra.yml sql -e --yes
+    volumes:
+      - type: bind
+        source: ./docker/hydra
+        target: /etc/config/hydra
+    restart: on-failure
+    depends_on:
+      - db
+
+volumes:
+  db_data:

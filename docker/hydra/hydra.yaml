@@ -1,0 +1,17 @@
+urls:
+  login: {login_url}
+  consent: {consent_url}
+  logout: {logout_url}
+  self:
+    admin: http://hydra:4445
+    public: {public_url}
+secrets:
+  cookie:
+    - the-old-cookie-encryption-key
+  system:
+    - the-old-system-encryption-key
+ttl:
+  access_token: 2h
+
+log:
+  leak_sensitive_values: true
