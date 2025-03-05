@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # База данных
   db:
     image: postgres:17
     ports:
@@ -13,6 +14,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  # Ory/Hydra - для OAuth
   hydra:
     image: oryd/hydra:v2.2.0
     ports:
@@ -23,15 +25,16 @@ services:
         source: ./docker/hydra
         target: /etc/config/hydra
     environment:
-      - DSN=${HYDRA_DSN}
+      - DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?search_path=hydra&sslmode=disable
     restart: unless-stopped
     depends_on:
       - hydra-migrate
 
+  # Миграции для Ory/Hydra в нашу БД
   hydra-migrate:
     image: oryd/hydra:v2.2.0
     environment:
-      - DSN=${HYDRA_DSN}
+      - DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?search_path=hydra&sslmode=disable
     command: migrate -c /etc/config/hydra/hydra.yml sql -e --yes
     volumes:
       - type: bind
@@ -41,5 +44,16 @@ services:
     depends_on:
       - db
 
+  # Redis
+  redis:
+    image: redis:7.4
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+
 volumes:
   db_data:
+  redis_data:

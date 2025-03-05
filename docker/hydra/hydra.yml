@@ -1,10 +1,10 @@
 urls:
-  login: {login_url}
-  consent: {consent_url}
-  logout: {logout_url}
+  login: https://example.com/login
+  consent: https://example.com/consent
+  logout: https://example.com/logout
   self:
     admin: http://hydra:4445
-    public: {public_url}
+    public: https://example.com
 secrets:
   cookie:
     - the-old-cookie-encryption-key
