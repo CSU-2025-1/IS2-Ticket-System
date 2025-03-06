@@ -19,6 +19,7 @@ services:
     image: oryd/hydra:v2.2.0
     ports:
       - "4444:4444" # Публичное API
+      - "4445:4445" # Админское API, открывать только для локальных тестов
     command: serve -c /etc/config/hydra/hydra.yml all --dev
     volumes:
       - type: bind

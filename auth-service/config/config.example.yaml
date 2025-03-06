@@ -1,0 +1,18 @@
+database:
+  host: "localhost"
+  port: "5432"
+  username: "user"
+  password: "pass"
+  database: "mydb"
+  max_conns: 10
+
+hydra:
+  admin_url: "http://localhost:4445"
+  debug: true
+
+server:
+  address: ":8080"
+
+hash:
+  salt: "somesalt"
+  cost: 10
