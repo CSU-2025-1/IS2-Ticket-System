@@ -8,7 +8,7 @@ import (
 type Service struct {
 	Type string
 	IP   net.IP
-	Port uint32
+	Port uint16
 }
 
 func (s *Service) GetFullAddress() string {
