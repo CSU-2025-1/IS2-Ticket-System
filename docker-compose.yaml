@@ -52,8 +52,13 @@ services:
     volumes:
       - redis_data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    command: [ "redis-transport", "/usr/local/etc/redis/redis.conf" ]
 
+  # Consul registry
+  consul:
+    image: consul:1.15.0
+    ports:
+      - "8500:8500"
 volumes:
   db_data:
   redis_data:
