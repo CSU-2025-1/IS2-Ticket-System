@@ -56,8 +56,9 @@ func (p *Proxy) Run(ctx context.Context) (err error) {
 	}()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/", p.handle)
 
+	p.logger.Infof("Proxy.Run: proxy is running now")
 	if err = http.ListenAndServe(fmt.Sprintf(":%d", p.config.LaunchedPort), mux); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			p.logger.Infof("Proxy.Run: http server closed")
@@ -66,6 +67,8 @@ func (p *Proxy) Run(ctx context.Context) (err error) {
 
 		return err
 	}
+
+	p.logger.Infof("Proxy.Run: proxy stopped")
 
 	return nil
 }
@@ -104,6 +107,7 @@ func (p *Proxy) handle(responseWriter http.ResponseWriter, request *http.Request
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(newUrl)
+	request.URL.Scheme = newUrl.Scheme
 	request.URL.Host = request.Host
 	request.Host = newUrl.Host
 	proxy.ServeHTTP(responseWriter, request)

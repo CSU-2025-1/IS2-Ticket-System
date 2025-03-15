@@ -6,7 +6,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Config is a general configuration file for all systems of gateway
+// Config is a general configuration file for all systems of service
 type Config struct {
 	Gateway  Proxy    `env-prefix:"GATEWAY_"`
 	Redis    Redis    `env-prefix:"REDIS_"`

@@ -31,6 +31,11 @@ func NewPrettyStdout(level int) *PrettyStdout {
 	}
 }
 
+// Debugf logs DEBUG level messages
+func (p *PrettyStdout) Debugf(msg string, args ...interface{}) {
+	p.logger.Debug().Timestamp().Msgf(msg, args...)
+}
+
 // Infof logs INFO level messages
 func (p *PrettyStdout) Infof(message string, args ...interface{}) {
 	p.logger.Info().Timestamp().Msgf(message, args...)

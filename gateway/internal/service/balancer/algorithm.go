@@ -1,6 +1,6 @@
 package balancer
 
-// Balancing algorithms for gateway
+// Balancing algorithms for service
 const (
 	RoundRobinAlgorithm = "round-robin"
 	RandomAlgorithm     = "random"

@@ -150,9 +150,10 @@ func (c *Client) Register(serviceType, address string, port uint16) (registeredS
 		ID:      registeredServiceUUID,
 		Name:    fmt.Sprintf("%s-%s", serviceType, address),
 		Port:    int(port),
+		Tags:    []string{serviceType},
 		Address: address,
 		Check: &api.AgentServiceCheck{
-			HTTP:     c.config.HealthCheckEndpoint,
+			HTTP:     fmt.Sprintf("http://%s:%v/check", address, port),
 			Interval: c.config.HealthCheckInterval.String(),
 			Timeout:  c.config.HealthCheckTimeout.String(),
 		},

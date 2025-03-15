@@ -5,16 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"gateway/config"
-	"gateway/internal/gateway/balancer"
-	"gateway/internal/gateway/proxy"
-	"gateway/internal/gateway/registry"
 	"gateway/internal/repository"
+	"gateway/internal/service/balancer"
+	"gateway/internal/service/proxy"
+	"gateway/internal/service/registry"
 	"gateway/pkg/consul"
 	"gateway/pkg/logger"
 	"sync"
 )
 
-// Application is the main entrypoint for gateway project
+// Application is the main entrypoint for service project
 type Application struct {
 	config *config.Config
 }
@@ -33,7 +33,7 @@ func (a *Application) Run(ctx context.Context) (err error) {
 			err = fmt.Errorf("Application.Run: consul client configuring error: %w", err)
 		}
 	}()
-	appLogger := logger.NewPrettyStdout(logger.Info)
+	appLogger := logger.NewPrettyStdout(logger.Debug)
 	auth := repository.NewAuthMock()
 	consulClient := consul.New(
 		consul.Config(a.config.Consul),
@@ -43,7 +43,7 @@ func (a *Application) Run(ctx context.Context) (err error) {
 		return err
 	}
 
-	serviceRegistry := registry.New(consulClient, a.config.Registry)
+	serviceRegistry := registry.New(consulClient, appLogger, a.config.Registry)
 
 	var gatewayProxy proxy.Proxy
 	switch a.config.Proxy.BalancerAlgorithm {

@@ -13,26 +13,34 @@ type (
 	serviceAddressesGetter interface {
 		GetAllServicesByType(serviceType string) (services []string, err error)
 	}
+
+	logger interface {
+		Debugf(format string, args ...interface{})
+		Infof(format string, args ...interface{})
+	}
 )
 
 type Registry struct {
 	serviceAddressesGetter serviceAddressesGetter
+	logger                 logger
 	services               sync.Map
-
-	config config.Registry
+	config                 config.Registry
 }
 
 func New(
 	serviceAddressesGetter serviceAddressesGetter,
+	logger logger,
 	config config.Registry,
 ) *Registry {
 	return &Registry{
 		serviceAddressesGetter: serviceAddressesGetter,
+		logger:                 logger,
 		services:               sync.Map{},
 		config:                 config,
 	}
 }
 
+// RunActualizingRegistry actualize internal service list from external registry
 func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 	defer func() {
 		if err != nil {
@@ -44,10 +52,12 @@ func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 	for {
 		select {
 		case <-ticker.C:
+			r.logger.Infof("Registry.RunActualizingRegistry: actualizing registry procceed...")
 			if err = r.Actualize(); err != nil {
 				return err
 			}
 		case <-ctx.Done():
+			r.logger.Infof("Registry.RunActualizingRegistry: stopping active registry")
 			return nil
 		}
 	}
@@ -73,6 +83,7 @@ func (r *Registry) GetAllWithType(serviceType string) (services []string, err er
 	return convertedAddresses, nil
 }
 
+// Actualize is a function for filling services from registry into internal gateway service list
 func (r *Registry) Actualize() (err error) {
 	defer func() {
 		if err != nil {
@@ -87,19 +98,17 @@ func (r *Registry) Actualize() (err error) {
 			return err
 		}
 
+		r.logger.Debugf("Registry.Actualize: get %d service addresses with type: %s and these addresses: %v",
+			len(addresses),
+			serviceType,
+			addresses,
+		)
 		newServicesMap[serviceType] = addresses
 	}
 
-	r.services.Range(func(key, value interface{}) bool {
-		convertedKey, ok := key.(string)
-		if !ok {
-			return ok
-		}
-
-		r.services.Store(key, newServicesMap[convertedKey])
-
-		return true
-	})
+	for serviceType, addresses := range newServicesMap {
+		r.services.Store(serviceType, addresses)
+	}
 
 	return nil
 }
