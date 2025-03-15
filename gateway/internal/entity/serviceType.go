@@ -2,7 +2,7 @@ package entity
 
 // Services types in registry
 const (
-	PublicAuthServiceType          = "auth-service-test"
+	PublicAuthServiceType          = "auth-service-rest"
 	PublicUserManagerServiceType   = "user-manager-rest"
 	PublicTicketServiceType        = "ticket-service-rest"
 	PublicNotificationServiceType  = "notification-service-rest"

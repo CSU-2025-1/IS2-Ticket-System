@@ -27,12 +27,22 @@ func New(config *config.Config) *Application {
 }
 
 // Run is a function that starting all application processes
-func (a *Application) Run(ctx context.Context) error {
+func (a *Application) Run(ctx context.Context) (err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("Application.Run: consul client configuring error: %w", err)
+		}
+	}()
 	appLogger := logger.NewPrettyStdout(logger.Info)
 	auth := repository.NewAuthMock()
 	consulClient := consul.New(
 		consul.Config(a.config.Consul),
 	)
+
+	if err := consulClient.Configure(); err != nil {
+		return err
+	}
+
 	serviceRegistry := registry.New(consulClient, a.config.Registry)
 
 	var gatewayProxy proxy.Proxy
@@ -45,6 +55,7 @@ func (a *Application) Run(ctx context.Context) error {
 		return errors.New(fmt.Sprintf("unknown load balancer algorithm: %s", a.config.Proxy.BalancerAlgorithm))
 	}
 
+	appLogger.Infof("Gateway starting...")
 	wg := sync.WaitGroup{}
 	go func() {
 		defer wg.Done()
@@ -64,6 +75,9 @@ func (a *Application) Run(ctx context.Context) error {
 		}
 	}()
 
+	appLogger.Infof("Gateway is running now")
 	wg.Wait()
+
+	appLogger.Infof("Gateway stopped")
 	return nil
 }
