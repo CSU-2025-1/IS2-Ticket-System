@@ -17,8 +17,8 @@ type RoundRobin struct {
 }
 
 // NewRoundRobin returns new example of RoundRobin
-func NewRoundRobin(registry registry) RoundRobin {
-	return RoundRobin{
+func NewRoundRobin(registry registry) *RoundRobin {
+	return &RoundRobin{
 		registry: registry,
 	}
 }

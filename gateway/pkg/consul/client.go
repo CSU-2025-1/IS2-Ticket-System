@@ -3,23 +3,24 @@ package consul
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
+	"math/rand"
 	"net"
 	"strconv"
 )
 
 // Client api wrapper for work with Consul
 type Client struct {
-	config *api.Config
-	consul *api.Client
+	config     Config
+	consul     *api.Client
+	randomizer *rand.Rand
 }
 
 // New creates new Client
-func New(config Config) Client {
-	return Client{
-		config: &api.Config{
-			Address: config.Address,
-		},
+func New(config Config) *Client {
+	return &Client{
+		config: config,
 	}
 }
 
@@ -31,11 +32,9 @@ func (c *Client) Configure() (err error) {
 		}
 	}()
 
-	if c.config == nil {
-		return errors.New("client not initialized")
-	}
-
-	consul, err := api.NewClient(c.config)
+	consul, err := api.NewClient(&api.Config{
+		Address: c.config.ConsulAddress,
+	})
 	if err != nil {
 		return err
 	}
@@ -85,6 +84,22 @@ func (c *Client) GetAllServicesByType(serviceType string) (addresses []string, e
 	return addresses, nil
 }
 
+// GetRandomServiceByType returns the random service address with type = serviceType
+func (c *Client) GetRandomServiceByType(serviceType string) (address string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("Consul.Client.GetRandomServiceByType: %w", err)
+		}
+	}()
+
+	allServices, err := c.GetAllServicesByType(serviceType)
+	if err != nil {
+		return "", err
+	}
+
+	return allServices[c.randomizer.Intn(len(allServices))], nil
+}
+
 // GetFirstServiceByType returns the first found service address with type = serviceType
 func (c *Client) GetFirstServiceByType(serviceType string) (address string, err error) {
 	defer func() {
@@ -119,4 +134,40 @@ func (c *Client) GetFirstServiceByType(serviceType string) (address string, err 
 	}
 
 	return "", errors.New("service address not found")
+}
+
+// Register sends request for register service into Consul cluster
+func (c *Client) Register(serviceType, address string, port uint16) (registeredServiceUUID string, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("Consul.Client.Register: %w", err)
+		}
+	}()
+
+	registeredServiceUUID = uuid.NewString()
+
+	registration := &api.AgentServiceRegistration{
+		ID:      registeredServiceUUID,
+		Name:    fmt.Sprintf("%s-%s", serviceType, address),
+		Port:    int(port),
+		Address: address,
+		Check: &api.AgentServiceCheck{
+			HTTP:     c.config.HealthCheckEndpoint,
+			Interval: c.config.HealthCheckInterval.String(),
+			Timeout:  c.config.HealthCheckTimeout.String(),
+		},
+	}
+
+	return registeredServiceUUID, c.consul.Agent().ServiceRegister(registration)
+}
+
+// Deregister sends request for deregister service into Consul cluster
+func (c *Client) Deregister(serviceUUID string) (err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("Consul.Client.Deregister: %w", err)
+		}
+	}()
+
+	return c.consul.Agent().ServiceDeregister(serviceUUID)
 }

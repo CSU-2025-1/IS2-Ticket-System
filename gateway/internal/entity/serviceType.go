@@ -2,15 +2,23 @@ package entity
 
 // Services types in registry
 const (
-	AuthServiceType         = "auth-service"
-	UserManagerServiceType  = "user-manager"
-	TicketServiceType       = "ticket-service"
-	NotificationServiceType = "notification-service"
+	PublicAuthServiceType          = "auth-service-test"
+	PublicUserManagerServiceType   = "user-manager-rest"
+	PublicTicketServiceType        = "ticket-service-rest"
+	PublicNotificationServiceType  = "notification-service-rest"
+	PrivateAuthServiceType         = "auth-service-grpc"
+	PrivateUserManagerServiceType  = "user-manager-grpc"
+	PrivateTicketServiceType       = "ticket-service-grpc"
+	PrivateNotificationServiceType = "notification-service-grpc"
 )
 
 var ServiceTypes = []string{
-	AuthServiceType,
-	UserManagerServiceType,
-	TicketServiceType,
-	NotificationServiceType,
+	PublicAuthServiceType,
+	PublicUserManagerServiceType,
+	PublicTicketServiceType,
+	PublicNotificationServiceType,
+	PrivateAuthServiceType,
+	PrivateUserManagerServiceType,
+	PrivateTicketServiceType,
+	PrivateNotificationServiceType,
 }

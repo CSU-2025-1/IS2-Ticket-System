@@ -3,7 +3,7 @@ package registry
 import (
 	"context"
 	"fmt"
-	"gateway/internal/config"
+	"gateway/config"
 	"gateway/internal/entity"
 	"sync"
 	"time"
@@ -25,8 +25,8 @@ type Registry struct {
 func New(
 	serviceAddressesGetter serviceAddressesGetter,
 	config config.Registry,
-) Registry {
-	return Registry{
+) *Registry {
+	return &Registry{
 		serviceAddressesGetter: serviceAddressesGetter,
 		services:               sync.Map{},
 		config:                 config,
@@ -86,6 +86,7 @@ func (r *Registry) Actualize() (err error) {
 		if err != nil {
 			return err
 		}
+
 		newServicesMap[serviceType] = addresses
 	}
 

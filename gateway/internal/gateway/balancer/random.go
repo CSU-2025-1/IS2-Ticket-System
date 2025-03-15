@@ -13,8 +13,8 @@ type Random struct {
 }
 
 // NewRandom returns new example of RoundRobin
-func NewRandom(registry registry) Random {
-	return Random{
+func NewRandom(registry registry) *Random {
+	return &Random{
 		registry: registry,
 		randomizer: rand.New(
 			rand.NewPCG(

@@ -11,6 +11,8 @@ type Config struct {
 	Gateway  Proxy    `env-prefix:"GATEWAY_"`
 	Redis    Redis    `env-prefix:"REDIS_"`
 	Registry Registry `env-prefix:"REGISTRY_"`
+	Consul   Consul   `env-prefix:"CONSUL_"`
+	Proxy    Proxy    `env-prefix:"PROXY_"`
 }
 
 // LoadConfig load config form envs
