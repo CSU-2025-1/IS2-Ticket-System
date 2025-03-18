@@ -20,6 +20,7 @@ type (
 	}
 )
 
+// Registry is an in-memory Consul services storage. It actualizes services list with its type.
 type Registry struct {
 	serviceAddressesGetter serviceAddressesGetter
 	logger                 logger
@@ -27,6 +28,7 @@ type Registry struct {
 	config                 config.Registry
 }
 
+// New returns new Registry
 func New(
 	serviceAddressesGetter serviceAddressesGetter,
 	logger logger,
@@ -65,6 +67,7 @@ func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 	}
 }
 
+// GetAllWithType returns all services with type
 func (r *Registry) GetAllWithType(serviceType string) (services []string, err error) {
 	defer func() {
 		if err != nil {

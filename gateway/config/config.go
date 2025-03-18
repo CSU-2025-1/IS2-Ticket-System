@@ -8,7 +8,6 @@ import (
 
 // Config is a general configuration file for all systems of service
 type Config struct {
-	Gateway  Proxy    `env-prefix:"GATEWAY_"`
 	Redis    Redis    `env-prefix:"REDIS_"`
 	Registry Registry `env-prefix:"REGISTRY_"`
 	Consul   Consul   `env-prefix:"CONSUL_"`
