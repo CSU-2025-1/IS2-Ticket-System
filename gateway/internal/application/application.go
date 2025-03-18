@@ -11,6 +11,7 @@ import (
 	"gateway/internal/service/registry"
 	"gateway/pkg/consul"
 	"gateway/pkg/logger"
+	"sync"
 )
 
 // Application is the main entrypoint for service project
@@ -42,27 +43,33 @@ func (a *Application) Run(ctx context.Context) (err error) {
 	}
 
 	a.logger.Infof("Application.Run: Gateway is running now")
-
 	a.runServices(ctx)
-	<-ctx.Done()
-
 	a.logger.Infof("Application.Run: Gateway stopped")
 
 	return nil
 }
 
 func (a *Application) runServices(ctx context.Context) {
+	wg := sync.WaitGroup{}
 	go func() {
+		defer wg.Done()
+
+		wg.Add(1)
 		if err := a.serviceRegistry.RunActualizingRegistry(ctx); err != nil {
 			a.logger.Errorf("Application.runServices: failed to run actualizing registry: %s", err.Error())
 		}
 	}()
 
 	go func() {
+		defer wg.Done()
+
+		wg.Add(1)
 		if err := a.gatewayProxy.Run(ctx); err != nil {
 			a.logger.Errorf("Application.runServices: failed to run proxy: %s", err.Error())
 		}
 	}()
+
+	wg.Wait()
 }
 
 func (a *Application) configureDependencies() error {
