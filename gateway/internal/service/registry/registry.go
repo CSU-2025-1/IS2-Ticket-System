@@ -44,9 +44,11 @@ func New(
 func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("Registry.Registry.RunActualizingRegistry: %w", err)
+			err = fmt.Errorf("Registry.RunActualizingRegistry: %w", err)
 		}
 	}()
+
+	r.logger.Infof("Registry.RunActualizingRegistry: registry actualizing is running")
 
 	ticker := time.NewTicker(r.config.ActualizingInterval)
 	for {
@@ -57,7 +59,7 @@ func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 				return err
 			}
 		case <-ctx.Done():
-			r.logger.Infof("Registry.RunActualizingRegistry: stopping active registry")
+			r.logger.Infof("Registry.RunActualizingRegistry: stopped")
 			return nil
 		}
 	}
@@ -66,7 +68,7 @@ func (r *Registry) RunActualizingRegistry(ctx context.Context) (err error) {
 func (r *Registry) GetAllWithType(serviceType string) (services []string, err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("Registry.Registry.GetAllWithType: %w", err)
+			err = fmt.Errorf("Registry.GetAllWithType: %w", err)
 		}
 	}()
 
@@ -87,11 +89,10 @@ func (r *Registry) GetAllWithType(serviceType string) (services []string, err er
 func (r *Registry) Actualize() (err error) {
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("Registry.Registry.Actualize: %w", err)
+			err = fmt.Errorf("Registry.Actualize: %w", err)
 		}
 	}()
 
-	newServicesMap := map[string][]string{}
 	for _, serviceType := range entity.ServiceTypes {
 		addresses, err := r.serviceAddressesGetter.GetAllServicesByType(serviceType)
 		if err != nil {
@@ -103,10 +104,7 @@ func (r *Registry) Actualize() (err error) {
 			serviceType,
 			addresses,
 		)
-		newServicesMap[serviceType] = addresses
-	}
 
-	for serviceType, addresses := range newServicesMap {
 		r.services.Store(serviceType, addresses)
 	}
 

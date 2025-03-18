@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"gateway/config"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -27,6 +28,7 @@ type (
 	}
 )
 
+// Proxy is the HTTP v1 proxy for request to services of Ticket system
 type Proxy struct {
 	balancer      balancer
 	authenticator authenticator
@@ -39,8 +41,8 @@ func New(
 	authenticator authenticator,
 	logger logger,
 	config config.Proxy,
-) Proxy {
-	return Proxy{
+) *Proxy {
+	return &Proxy{
 		balancer:      balancer,
 		authenticator: authenticator,
 		logger:        logger,
@@ -57,9 +59,15 @@ func (p *Proxy) Run(ctx context.Context) (err error) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", p.handle)
+	server := &http.Server{
+		BaseContext: func(net.Listener) context.Context { return ctx },
+		Addr:        fmt.Sprintf(":%d", p.config.LaunchedPort),
+		Handler:     mux,
+	}
 
-	p.logger.Infof("Proxy.Run: proxy is running now")
-	if err = http.ListenAndServe(fmt.Sprintf(":%d", p.config.LaunchedPort), mux); err != nil {
+	p.logger.Infof("Proxy.Run: server is running")
+
+	if err = server.ListenAndServe(); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
 			p.logger.Infof("Proxy.Run: http server closed")
 			return nil
@@ -68,7 +76,11 @@ func (p *Proxy) Run(ctx context.Context) (err error) {
 		return err
 	}
 
-	p.logger.Infof("Proxy.Run: proxy stopped")
+	if err := server.Close(); err != nil {
+		p.logger.Errorf("Proxy.Run: server closed with error: %s", err.Error())
+	}
+
+	p.logger.Infof("Proxy.Run: server stopped")
 
 	return nil
 }

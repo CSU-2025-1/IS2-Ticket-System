@@ -12,7 +12,7 @@ type Random struct {
 	randomizer *rand.Rand
 }
 
-// NewRandom returns new example of RoundRobin
+// NewRandom returns new example of Random
 func NewRandom(registry registry) *Random {
 	return &Random{
 		registry: registry,
@@ -25,7 +25,7 @@ func NewRandom(registry registry) *Random {
 	}
 }
 
-// GetAddress returns address of the service with RR algorithm
+// GetAddress returns address of the random service
 func (r *Random) GetAddress(serviceType string) (address string, err error) {
 	defer func() {
 		if err != nil {
