@@ -51,19 +51,20 @@ func (a *Application) Run(ctx context.Context) (err error) {
 
 func (a *Application) runServices(ctx context.Context) {
 	wg := sync.WaitGroup{}
+
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		wg.Add(1)
 		if err := a.serviceRegistry.RunActualizingRegistry(ctx); err != nil {
 			a.logger.Errorf("Application.runServices: failed to run actualizing registry: %s", err.Error())
 		}
 	}()
 
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		wg.Add(1)
 		if err := a.gatewayProxy.Run(ctx); err != nil {
 			a.logger.Errorf("Application.runServices: failed to run proxy: %s", err.Error())
 		}
