@@ -20,7 +20,7 @@ func New(db *pgxpool.Pool) *Repository {
 	}
 }
 
-func (r Repository) GetUserByLogin(ctx context.Context, login string) (*entity.UserAuthData, error) {
+func (r Repository) GetUserByLogin(ctx context.Context, login string) (*entity.User, error) {
 	query := `select uuid, login, password from users_auth_data where login = $1`
 
 	var res AuthData
@@ -35,7 +35,7 @@ func (r Repository) GetUserByLogin(ctx context.Context, login string) (*entity.U
 	return res.ToEntity(), nil
 }
 
-func (r Repository) CreateUser(ctx context.Context, user *entity.UserAuthData) error {
+func (r Repository) CreateUser(ctx context.Context, user *entity.User) error {
 	query := `insert into users_auth_data(uuid, login, password) values ($1, $2, $3)`
 
 	_, err := r.db.Exec(ctx, query, user.UUID, user.Password)

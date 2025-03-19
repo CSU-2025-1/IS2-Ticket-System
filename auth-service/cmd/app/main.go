@@ -40,7 +40,7 @@ func main() {
 	}
 
 	go func(application *app.App) {
-		if err = application.Run(); err != nil {
+		if err = application.Run(ctx); err != nil {
 			log.Fatal("application run error: ", err.Error())
 			return
 		}

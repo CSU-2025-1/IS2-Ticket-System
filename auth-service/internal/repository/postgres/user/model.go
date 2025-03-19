@@ -11,7 +11,7 @@ type AuthData struct {
 	Password string    `db:"password"`
 }
 
-func (a AuthData) ToEntity() *entity.UserAuthData {
-	res := entity.UserAuthData(a)
+func (a AuthData) ToEntity() *entity.User {
+	res := entity.User(a)
 	return &res
 }

@@ -8,12 +8,15 @@ import (
 	"errors"
 	"fmt"
 	oryclient "github.com/ory/hydra-client-go"
-	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 )
 
+type Hasher interface {
+	Hash(in string) string
+}
+
 type UserGetter interface {
-	GetUserByLogin(ctx context.Context, login string) (*entity.UserAuthData, error)
+	GetUserByLogin(ctx context.Context, login string) (*entity.User, error)
 }
 
 type Authenticator interface {
@@ -24,12 +27,14 @@ type Authenticator interface {
 type Service struct {
 	authenticator Authenticator
 	userGetter    UserGetter
+	hasher        Hasher
 }
 
-func New(hydra Authenticator, userRepo UserGetter) *Service {
+func New(hydra Authenticator, userRepo UserGetter, hasher Hasher) *Service {
 	return &Service{
 		authenticator: hydra,
 		userGetter:    userRepo,
+		hasher:        hasher,
 	}
 }
 
@@ -46,10 +51,7 @@ func (s *Service) Authenticate(ctx context.Context, challenge, login, password s
 		return "", fmt.Errorf("auth service: get user by login: %w", err)
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		slog.Warn("Incorrect password",
-			slog.String("login", login),
-		)
+	if user.Password != s.hasher.Hash(password) {
 		return "", service.ErrInvalidCredentials
 	}
 

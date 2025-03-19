@@ -3,6 +3,8 @@ package app
 import (
 	"auth-service/cmd/migrator"
 	"auth-service/config"
+	"auth-service/internal/consumer"
+	"auth-service/internal/grpc"
 	"auth-service/internal/http"
 	"auth-service/internal/http/handler"
 	"auth-service/internal/repository"
@@ -10,12 +12,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net"
 )
 
 type App struct {
-	address    string
-	router     *gin.Engine
-	controller *handler.Controller
+	address string
+	router  *gin.Engine
+
+	grpsAddress string
+	controller  *handler.Controller
+
+	userConsumer *consumer.Consumer
+
+	grpcServer *grpc.Server
 }
 
 func Build(ctx context.Context, cfg config.Config) (*App, error) {
@@ -23,7 +32,7 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	repositories, err := repository.Init(ctx, cfg.Database, cfg.Hydra)
+	repositories, err := repository.Init(ctx, cfg.Database, cfg.Hydra, cfg.Kafka)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize repositories: %w", err)
 	}
@@ -35,12 +44,22 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 		Service:    services,
 	}
 
+	userConsumer := consumer.NewConsumer(services.Register, repositories.UserStream)
+
+	grpcServer := grpc.NewServer(repositories.Hydra)
+
 	router := http.SetupRouter(controller)
 
 	return &App{
-		address:    cfg.Server.Address,
-		router:     router,
 		controller: controller,
+
+		address: cfg.Server.Address,
+		router:  router,
+
+		grpsAddress: cfg.Grpc.Address,
+		grpcServer:  grpcServer,
+
+		userConsumer: userConsumer,
 	}, nil
 }
 
@@ -58,12 +77,30 @@ func runMigration(ctx context.Context, cfg config.Config) error {
 	return nil
 }
 
-func (a App) Run() error {
-	if err := a.router.Run(a.address); err != nil {
-		return fmt.Errorf("failed to start server: %w", err)
-	}
+func (a App) Run(ctx context.Context) error {
+	errChan := make(chan error)
 
-	return nil
+	go func(errChan chan error) {
+		listener, err := net.Listen("tcp", a.grpsAddress)
+		if err != nil {
+			errChan <- fmt.Errorf("failed to listen: %w", err)
+		}
+
+		err = a.grpcServer.Run(listener)
+		if err != nil {
+			errChan <- fmt.Errorf("failed to start grpc server: %w", err)
+		}
+	}(errChan)
+
+	go func() {
+		if err := a.router.Run(a.address); err != nil {
+			errChan <- fmt.Errorf("failed to start http server: %w", err)
+		}
+	}()
+
+	go a.userConsumer.RunUserConsuming(ctx)
+
+	return <-errChan
 }
 
 func (a App) Shutdown(ctx context.Context) {

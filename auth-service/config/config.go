@@ -14,9 +14,21 @@ type Config struct {
 	Hydra    *hydra.Config    `yaml:"hydra"`
 	Server   *ServerConfig    `yaml:"server"`
 	Hash     *HashConfig      `yaml:"hash"`
+	Grpc     *GrpcConfig      `yaml:"grpc"`
+	Kafka    *KafkaConfig     `yaml:"kafka"`
+}
+
+type KafkaConfig struct {
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
+	GroupID string   `yaml:"group_id"`
 }
 
 type ServerConfig struct {
+	Address string `yaml:"address"`
+}
+
+type GrpcConfig struct {
 	Address string `yaml:"address"`
 }
 

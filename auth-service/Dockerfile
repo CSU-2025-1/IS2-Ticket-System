@@ -10,7 +10,7 @@ RUN go mod download -x
 
 COPY . .
 
-RUN go build -a -ldflags='-s' -trimpath -o /app/bin/app /iscore/cmd/app/main.go
+RUN go build -a -ldflags='-s' -trimpath -o /app/bin/app /app/cmd/app/main.go
 
 FROM scratch
 

@@ -14,7 +14,7 @@ func New(cost int, salt string) *Service {
 	}
 }
 
-func (s *Service) Hash(in string) (string, error) {
+func (s *Service) Hash(in string) string {
 	hasher := sha512.New()
 	bytes := []byte(in)
 	res := bytes
@@ -22,5 +22,5 @@ func (s *Service) Hash(in string) (string, error) {
 		res = append(res, s.salt...)
 		res = hasher.Sum(res)
 	}
-	return string(res), nil
+	return string(res)
 }

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"auth-service/config"
+	"auth-service/internal/repository/kafka"
 	"auth-service/internal/repository/postgres"
 	"auth-service/internal/repository/postgres/user"
 	"auth-service/pkg/hydra"
@@ -14,10 +16,12 @@ type Manager struct {
 
 	AuthData *user.Repository
 
+	UserStream *kafka.KafkaUserStream
+
 	Hydra *hydra.Client
 }
 
-func Init(ctx context.Context, pgConfig *postgres.Config, hydraConfig *hydra.Config) (Manager, error) {
+func Init(ctx context.Context, pgConfig *postgres.Config, hydraConfig *hydra.Config, kafkaConfig *config.KafkaConfig) (Manager, error) {
 	var manager Manager
 	var err error
 
@@ -26,6 +30,7 @@ func Init(ctx context.Context, pgConfig *postgres.Config, hydraConfig *hydra.Con
 		return Manager{}, fmt.Errorf("failed to connect to postgres: %w", err)
 	}
 
+	manager.UserStream = kafka.NewKafkaUserStream(kafkaConfig)
 	manager.Hydra = hydra.New(ctx, hydraConfig)
 	manager.AuthData = user.New(manager.pgPool)
 
@@ -34,4 +39,5 @@ func Init(ctx context.Context, pgConfig *postgres.Config, hydraConfig *hydra.Con
 
 func (manager Manager) Close() {
 	manager.pgPool.Close()
+	manager.UserStream.Close()
 }
