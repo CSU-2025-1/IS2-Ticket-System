@@ -1,0 +1,25 @@
+[
+  {
+    "id": "my-client",
+    "name": "My OAuth Client",
+    "secret": "my-secret",
+    "scopes": [
+      "openid",
+      "profile",
+      "email",
+      "offline"
+    ],
+    "grant_types": [
+      "authorization_code",
+      "refresh_token"
+    ],
+    "response_types": [
+      "code",
+      "id_token"
+    ],
+    "redirect_uris": [
+      "http://localhost:3000/callback"
+    ],
+    "token_endpoint_auth_method": "client_secret_basic"
+  }
+]

@@ -1,0 +1,27 @@
+database:
+  host: "db"
+  port: "5432"
+  username: "satoro"
+  password: "gojo"
+  database: "ticket-systems"
+  max_conns: 3
+
+hydra:
+  admin_url: "http://hydra:4445"
+  debug: true
+
+server:
+  address: ":8080"
+
+grpc:
+  address: ":8081"
+
+hash:
+  salt: "somesalt"
+  cost: 10
+
+kafka:
+  brokers:
+    - "kafka:9092"
+  topic: "new_users"
+  group_id": "auth_service_1"

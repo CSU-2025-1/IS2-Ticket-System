@@ -10,8 +10,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/ory/hydra-client-go v1.11.8
 	github.com/pressly/goose v2.7.0+incompatible
-	golang.org/x/crypto v0.36.0
-	golang.org/x/sync v0.12.0
+	github.com/segmentio/kafka-go v0.4.47
 	google.golang.org/grpc v1.71.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -41,12 +40,13 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
-	github.com/segmentio/kafka-go v0.4.47 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.8.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/oauth2 v0.25.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250227231956-55c901821b1e // indirect
