@@ -3,6 +3,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"user-mananger/internal/http/handler"
+	"user-mananger/internal/http/middleware"
 )
 
 func SetupRouter() *gin.Engine {
@@ -12,6 +13,7 @@ func SetupRouter() *gin.Engine {
 	r.Any("/health", health.Health)
 
 	api := r.Group("/api/v1/users")
+	api.Use(middleware.AuthMiddleware())
 
 	usersHandler := handler.NewUsersHandler()
 	users := api.Group("")
