@@ -7,8 +7,8 @@ create schema if not exists auth;
 create table if not exists auth.users_auth_data
 (
     uuid     uuid unique,
-    login    varchar(63),
-    password varchar(255)
+    login    varchar(64),
+    password varchar(512)
 );
 
 -- +goose Down
