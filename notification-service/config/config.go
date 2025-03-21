@@ -8,7 +8,8 @@ import (
 
 // Config is a model for configuration params
 type Config struct {
-	Mail Mail `env-prefix:"MAIL_"`
+	Mail  Mail  `env-prefix:"MAIL_"`
+	Kafka Kafka `env-prefix:"KAFKA_"`
 }
 
 // LoadConfig load config form envs
