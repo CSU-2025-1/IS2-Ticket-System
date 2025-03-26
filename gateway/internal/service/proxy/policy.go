@@ -10,9 +10,10 @@ import "gateway/internal/entity"
 
 // RoutePolicy is a list of rules for proxying request to each service
 var RoutePolicy = map[string]string{
-	"/api/ticket": entity.PublicTicketServiceType,
-	"/api/user":   entity.PublicUserManagerServiceType,
-	"/api/auth":   entity.PublicAuthServiceType,
+	"/api/ticket":       entity.PublicTicketServiceType,
+	"/api/user":         entity.PublicUserManagerServiceType,
+	"/api/auth":         entity.PublicAuthServiceType,
+	"/api/notification": entity.PublicNotificationServiceType,
 }
 
 // AuthPolicy is a policy for auth at routes

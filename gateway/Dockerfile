@@ -1,24 +1,27 @@
-ARG GO_VERSION=1.24
+FROM golang:1.24 AS modules
 
-FROM golang:alpine-${GO_VERSION} AS builder
+ADD go.mod go.sum /m/
+RUN cd /m && go mod download
 
-RUN mkdir /app
+FROM golang:1.24 AS builder
+
+COPY --from=modules /go/pkg /go/pkg
+
+RUN adduser -u 10001 goless
+
+COPY .  /app
+
 WORKDIR /app
 
-COPY ./go.mod ./go.sum ./
-RUN go mod download -x
-
-COPY . .
-
-RUN go build -a -ldflags='-s' -trimpath -o /app/bin/app /iscore/cmd/app/main.go
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags='-s' -a -trimpath -o ./bin/app ./cmd/app/main.go
 
 FROM scratch
 
-COPY --from=builder /app/bin/app ./
-COPY --from=builder /app/config/config.yaml ./config/config.yaml
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+COPY --from=builder /app/bin/app /app
 
 USER goless:goless
 
-EXPOSE 8080
-
-ENTRYPOINT ["./app"]
+CMD ["/app"]
