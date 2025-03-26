@@ -1,5 +1,6 @@
 package config
 
 type Http struct {
-	Port int `env:"PORT"`
+	Port    uint16 `env:"PORT"`
+	Address string `env:"ADDRESS"`
 }

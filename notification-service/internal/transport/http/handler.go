@@ -27,3 +27,9 @@ func RegisterMailReceiver(useCase *usecase.RegisterMailReceiverUseCase) func(c *
 		c.Status(http.StatusOK)
 	}
 }
+
+func HealthCheck() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	}
+}

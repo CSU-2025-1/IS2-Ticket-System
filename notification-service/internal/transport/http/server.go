@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"notification-service/config"
-	"notification-service/internal/app"
+	"notification-service/internal/repository"
+	"notification-service/internal/service"
 	"notification-service/internal/usecase"
 )
 
 type Server struct {
 	config            config.Http
-	repositoryManager *app.RepositoryManager
-	serviceManager    *app.ServiceManager
+	repositoryManager *repository.RepositoryManager
+	serviceManager    *service.ServiceManager
 }
 
 func New(
 	config config.Http,
-	repositoryManager *app.RepositoryManager,
-	serviceManager *app.ServiceManager,
+	repositoryManager *repository.RepositoryManager,
+	serviceManager *service.ServiceManager,
 ) *Server {
 	return &Server{
 		repositoryManager: repositoryManager,
@@ -35,6 +36,7 @@ func (s *Server) Run() error {
 	)
 
 	router.POST("/api/mail/register", RegisterMailReceiver(registerMailReceiverUseCase))
+	router.GET("/check", HealthCheck())
 
 	return router.Run(fmt.Sprintf(":%d", s.config.Port))
 }

@@ -16,10 +16,12 @@ type (
 	}
 )
 
+// Pool of the gRPC client connections
 type Pool struct {
 	pool *sync.Pool
 }
 
+// New creates new Pool
 func New(logger logger, registry registry, serviceType string) *Pool {
 	return &Pool{
 		pool: &sync.Pool{
@@ -42,10 +44,12 @@ func New(logger logger, registry registry, serviceType string) *Pool {
 	}
 }
 
+// Get returns grpc.ClientConn from the Pool
 func (p *Pool) Get() *grpc.ClientConn {
 	return p.pool.Get().(*grpc.ClientConn)
 }
 
+// Put put grpc.ClientConn back to the Pool
 func (p *Pool) Put(client *grpc.ClientConn) {
 	p.pool.Put(client)
 }
