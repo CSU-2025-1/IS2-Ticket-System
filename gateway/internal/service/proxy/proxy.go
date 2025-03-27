@@ -118,6 +118,7 @@ func (p *Proxy) handle(responseWriter http.ResponseWriter, request *http.Request
 		return
 	}
 
+	p.logger.Infof("Proxy.handle: handled request with path: %s and proxied to: %s", requestPath, newUrl.String())
 	proxy := httputil.NewSingleHostReverseProxy(newUrl)
 	request.URL.Scheme = newUrl.Scheme
 	request.URL.Host = request.Host
