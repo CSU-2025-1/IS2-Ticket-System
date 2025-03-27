@@ -1,31 +1,33 @@
-FROM golang:1.24 AS modules
-
-ADD go.mod go.sum /m/
-RUN cd /m && go mod download
-
 FROM golang:1.24 AS builder
 
-COPY --from=modules /go/pkg /go/pkg
+RUN apt update && apt install git ca-certificates gcc -y && update-ca-certificates
 
-RUN adduser -u 10001 goless
+ENV USER=appuser
+ENV UID=10001
 
-COPY .  /app
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    "${USER}"
 
-WORKDIR /app
+WORKDIR /src
+COPY . .
 
-RUN GOOS=linux GOARCH=amd64 go build -ldflags='-s' -a -trimpath -o ./bin/app ./cmd/app/main.go
+RUN go mod download
+RUN go mod verify
 
-FROM ubuntu:20.04
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -tags netgo -o /bin/app --ldflags "-extldflags -static" ./cmd/app/main.go
 
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+FROM scratch
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
-COPY --from=builder /app/bin/app /app/bin/app
+COPY --from=builder /bin/app /bin/app
 
-RUN chmod +x /app/bin/app
-
-USER goless:goless
-
-# Проверка на исполняемый файл
-CMD ["/app/bin/app"]
-
+USER appuser:appuser
+ENTRYPOINT ["/bin/app"]
