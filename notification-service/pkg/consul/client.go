@@ -6,7 +6,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
 	"math/rand"
-	"net"
 	"strconv"
 )
 
@@ -73,10 +72,7 @@ func (c *Client) GetAllServicesByType(serviceType string) (addresses []string, e
 		for entry := range entries {
 			addresses = append(
 				addresses,
-				net.JoinHostPort(
-					entries[entry].Service.Address,
-					strconv.Itoa(entries[entry].Service.Port),
-				),
+				fmt.Sprintf("%s:%s", entries[entry].Service.Address, strconv.Itoa(entries[entry].Service.Port)),
 			)
 		}
 	}
@@ -126,10 +122,7 @@ func (c *Client) GetFirstServiceByType(serviceType string) (address string, err 
 		}
 
 		for entry := range entries {
-			return net.JoinHostPort(
-				entries[entry].Service.Address,
-				strconv.Itoa(entries[entry].Service.Port),
-			), nil
+			return fmt.Sprintf("%s:%s", entries[entry].Service.Address, strconv.Itoa(entries[entry].Service.Port)), nil
 		}
 	}
 
@@ -151,7 +144,7 @@ func (c *Client) Register(serviceType, address string, port uint16) (registeredS
 		Name:    fmt.Sprintf("%s-%s", serviceType, address),
 		Port:    int(port),
 		Tags:    []string{serviceType},
-		Address: address,
+		Address: fmt.Sprintf("http://%s", address),
 		Check: &api.AgentServiceCheck{
 			HTTP:     fmt.Sprintf("http://%s:%v/check", address, port),
 			Interval: c.config.HealthCheckInterval.String(),

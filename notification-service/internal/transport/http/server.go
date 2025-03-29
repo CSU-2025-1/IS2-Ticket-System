@@ -35,7 +35,7 @@ func (s *Server) Run() error {
 		s.repositoryManager.ReceiverRepository,
 	)
 
-	router.POST("/api/mail/register", RegisterMailReceiver(registerMailReceiverUseCase))
+	router.POST("/api/notification/mail/register", RegisterMailReceiver(registerMailReceiverUseCase))
 	router.GET("/check", HealthCheck())
 
 	return router.Run(fmt.Sprintf(":%d", s.config.Port))
