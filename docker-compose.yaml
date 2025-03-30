@@ -53,7 +53,7 @@ services:
     volumes:
       - redis_data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    command: [ "redis-transport", "/usr/local/etc/redis/redis.conf" ]
 
 
 
@@ -75,7 +75,18 @@ services:
     volumes:
       - kafka_data:/bitnami/kafka
 
+  # Consul registry
+  consul:
+    image: consul:1.15.0
+    ports:
+      - "8500:8500"
+    networks:
+      - my-net
+
 volumes:
   db_data:
   redis_data:
   kafka_data:
+networks:
+  my-net:
+    driver: bridge
