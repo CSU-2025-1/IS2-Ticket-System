@@ -21,7 +21,6 @@ hash:
   cost: 10
 
 kafka:
-  brokers:
-    - "localhost:9092"
+  brokers: "localhost:9092"
   topic: "new_users"
   group_id": "auth_service_1"

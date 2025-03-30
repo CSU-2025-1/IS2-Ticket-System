@@ -1,41 +1,45 @@
 version: '3.8'
 
 services:
-  # База данных
+  # Database
   db:
     image: postgres:17
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-satoro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gojo}
+      POSTGRES_DB: ${POSTGRES_DB:-ticket-system}
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my-net
 
-  # Ory/Hydra - для OAuth
+  # Ory/Hydra - for OAuth
   hydra:
     image: oryd/hydra:v2.2.0
     ports:
-      - "4444:4444" # Публичное API
-      - "4445:4445" # Админское API, открывать только для локальных тестов
+      - "4444:4444" # Public API
+      - "4445:4445" # Admin API, only for local tests
     command: serve -c /etc/config/hydra/hydra.yml all --dev
     volumes:
       - type: bind
         source: ./docker/hydra
         target: /etc/config/hydra
     environment:
-      - DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?search_path=hydra&sslmode=disable
+      - DSN=postgres://${POSTGRES_USER:-satoro}:${POSTGRES_PASSWORD:-gojo}@db:5432/${POSTGRES_DB:-ticket-system}?search_path=hydra&sslmode=disable
     restart: unless-stopped
     depends_on:
       - hydra-migrate
+    networks:
+      - my-net
 
-  # Миграции для Ory/Hydra в нашу БД
+  # Migrations for Ory/Hydra
   hydra-migrate:
     image: oryd/hydra:v2.2.0
     environment:
-      - DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?search_path=hydra&sslmode=disable
+      - DSN=postgres://${POSTGRES_USER:-satoro}:${POSTGRES_PASSWORD:-gojo}@db:5432/${POSTGRES_DB:-ticket-system}?search_path=hydra&sslmode=disable
     command: migrate -c /etc/config/hydra/hydra.yml sql -e --yes
     volumes:
       - type: bind
@@ -44,6 +48,8 @@ services:
     restart: on-failure
     depends_on:
       - db
+    networks:
+      - my-net
 
   # Redis
   redis:
@@ -53,11 +59,11 @@ services:
     volumes:
       - redis_data:/data
       - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: [ "redis-transport", "/usr/local/etc/redis/redis.conf" ]
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    networks:
+      - my-net
 
-
-
-  # Грефневая кафка
+  # Kafka
   kafka:
     image: bitnami/kafka:3.7.0
     ports:
@@ -74,6 +80,8 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     volumes:
       - kafka_data:/bitnami/kafka
+    networks:
+      - my-net
 
   # Consul registry
   consul:
@@ -83,10 +91,77 @@ services:
     networks:
       - my-net
 
+  # Auth service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./auth-service/config:/app/config
+      - ./auth-service/hydra:/app/hydra
+    environment:
+      - CONFIG_PATH=/app/config/config.yaml
+    depends_on:
+      - db
+      - hydra
+      - kafka
+      - consul
+    networks:
+      - my-net
+
+  # User manager service
+  user-manager:
+    build:
+      context: ./user-manager
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./user-manager/config:/app/config
+    depends_on:
+      - db
+      - kafka
+      - consul
+    networks:
+      - my-net
+
+  # Notification service
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    depends_on:
+      - db
+      - kafka
+      - consul
+    networks:
+      - my-net
+
+  # Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - user-manager
+      - notification-service
+      - consul
+    networks:
+      - my-net
+
 volumes:
   db_data:
   redis_data:
   kafka_data:
+
 networks:
   my-net:
     driver: bridge

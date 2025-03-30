@@ -1,6 +1,6 @@
 ARG GO_VERSION=1.24
 
-FROM golang:alpine-${GO_VERSION} AS builder
+FROM golang:${GO_VERSION}-alpine3.21 AS builder
 
 RUN mkdir /app
 WORKDIR /app
@@ -16,8 +16,6 @@ FROM scratch
 
 COPY --from=builder /app/bin/app ./
 COPY --from=builder /app/config/config.yaml ./config/config.yaml
-
-USER goless:goless
 
 EXPOSE 8080
 

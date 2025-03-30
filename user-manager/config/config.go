@@ -18,9 +18,8 @@ type Config struct {
 }
 
 type KafkaConfig struct {
-	Broker  string `yaml:"broker"`
-	Topic   string `yaml:"topic"`
-	GroupID string `yaml:"group_id"`
+	Broker string `yaml:"broker"`
+	Topic  string `yaml:"topic"`
 }
 
 type HttpConfig struct {

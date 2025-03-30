@@ -11,6 +11,9 @@ create table if not exists auth.users_auth_data
     password varchar(512)
 );
 
+insert into auth.users_auth_data(uuid, login, password)
+values ('', 'admin', 'ed5faf26d7f8370b05e5df423baa316060090dfbf1cea4e30f8a2ebeaad22e268e7f157e46d5e2f3f89e5de146142175e051b9791744fb338fc69241cfa04006');
+
 -- +goose Down
 -- +goose StatementBegin
 SELECT 'down SQL query';

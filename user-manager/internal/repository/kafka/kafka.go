@@ -7,5 +7,5 @@ import (
 )
 
 func Connect(ctx context.Context, cfg config.KafkaConfig) (*kafka.Conn, error) {
-	return kafka.DialLeader(ctx, "tcp", cfg.Address, cfg.Topic, 0)
+	return kafka.DialLeader(ctx, "tcp", cfg.Broker, cfg.Topic, 0)
 }

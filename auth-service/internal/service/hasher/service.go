@@ -1,6 +1,9 @@
 package hasher
 
-import "crypto/sha512"
+import (
+	"crypto/sha512"
+	"fmt"
+)
 
 type Service struct {
 	cost int
@@ -19,8 +22,8 @@ func (s *Service) Hash(in string) string {
 	bytes := []byte(in)
 	res := bytes
 	for range s.cost {
-		res = append(res, s.salt...)
-		res = hasher.Sum(res)
+		hasher.Write(res)
+		res = hasher.Sum(nil)
 	}
-	return string(res)
+	return fmt.Sprintf("%x", res)
 }
