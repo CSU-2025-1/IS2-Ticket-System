@@ -8,3 +8,8 @@ type CreateUserRequest struct {
 type CreateUserResponse struct {
 	UUID string `json:"uuid"`
 }
+
+type User struct {
+	UUID  string `json:"uuid"`
+	Login string `json:"login"`
+}

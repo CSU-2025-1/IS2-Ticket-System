@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"user-mananger/internal/repository/postgres"
+	"user-mananger/pkg/consul"
 )
 
 type Config struct {
@@ -13,12 +14,13 @@ type Config struct {
 	Server   *HttpConfig      `yaml:"http"`
 	Grpc     *GrpcConfig      `yaml:"grpc"`
 	Kafka    *KafkaConfig     `yaml:"kafka"`
+	Consul   *consul.Config   `yaml:"consul"`
 }
 
 type KafkaConfig struct {
-	Brokers []string `yaml:"brokers"`
-	Topic   string   `yaml:"topic"`
-	GroupID string   `yaml:"group_id"`
+	Broker  string `yaml:"broker"`
+	Topic   string `yaml:"topic"`
+	GroupID string `yaml:"group_id"`
 }
 
 type HttpConfig struct {

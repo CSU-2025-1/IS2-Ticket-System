@@ -1,7 +1,12 @@
 package dto
 
-type CreateGroupRequest struct {
+type Group struct {
+	UUID string `json:"uuid"`
 	Name string `json:"name"`
+}
+
+type CreateGroupRequest struct {
+	Name string `json:"name" binding:"required"`
 }
 
 type CreateGroupResponse struct {
@@ -9,9 +14,9 @@ type CreateGroupResponse struct {
 }
 
 type AddUsersToGroupRequest struct {
-	Users []string `json:"users"`
+	Users []string `json:"users" binding:"required"`
 }
 
 type RemoveUsersFromGroupRequest struct {
-	Users []string `json:"users"`
+	Users []string `json:"users" binding:"required"`
 }

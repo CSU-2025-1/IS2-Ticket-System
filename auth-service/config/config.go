@@ -2,6 +2,7 @@ package config
 
 import (
 	"auth-service/internal/repository/postgres"
+	"auth-service/pkg/consul"
 	"auth-service/pkg/hydra"
 	"fmt"
 	"gopkg.in/yaml.v3"
@@ -16,12 +17,13 @@ type Config struct {
 	Hash     *HashConfig      `yaml:"hash"`
 	Grpc     *GrpcConfig      `yaml:"grpc"`
 	Kafka    *KafkaConfig     `yaml:"kafka"`
+	Consul   *consul.Config   `yaml:"consul"`
 }
 
 type KafkaConfig struct {
-	Brokers []string `yaml:"brokers"`
-	Topic   string   `yaml:"topic"`
-	GroupID string   `yaml:"group_id"`
+	Broker  string `yaml:"broker"`
+	Topic   string `yaml:"topic"`
+	GroupID string `yaml:"group_id"`
 }
 
 type ServerConfig struct {

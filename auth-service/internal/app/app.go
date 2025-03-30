@@ -9,6 +9,7 @@ import (
 	"auth-service/internal/http/handler"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
+	"auth-service/pkg/consul"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,9 @@ import (
 type App struct {
 	address string
 	router  *gin.Engine
+
+	consul *consul.Client
+	uuid   string
 
 	grpsAddress string
 	controller  *handler.Controller
@@ -30,6 +34,12 @@ type App struct {
 func Build(ctx context.Context, cfg config.Config) (*App, error) {
 	if err := runMigration(ctx, cfg); err != nil {
 		return nil, fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	consulClient := consul.New(*cfg.Consul)
+	serviceUUID, err := consulClient.Register("auth", "auth", 8080)
+	if err != nil {
+		return nil, fmt.Errorf("failed to register auth service: %w", err)
 	}
 
 	repositories, err := repository.Init(ctx, cfg.Database, cfg.Hydra, cfg.Kafka)
@@ -52,6 +62,9 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 
 	return &App{
 		controller: controller,
+
+		consul: consulClient,
+		uuid:   serviceUUID,
 
 		address: cfg.Server.Address,
 		router:  router,
@@ -105,4 +118,5 @@ func (a App) Run(ctx context.Context) error {
 
 func (a App) Shutdown(ctx context.Context) {
 	a.controller.Repository.Close()
+	_ = a.consul.Deregister(a.uuid)
 }

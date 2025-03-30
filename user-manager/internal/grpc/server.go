@@ -24,12 +24,12 @@ func NewServer(group GroupUsersGetter) *Server {
 }
 
 func (s *Server) GetUsersByGroupID(ctx context.Context, in *users_v1.GetUsersByGroupIDRequest) (*users_v1.GetUsersByGroupIDResponse, error) {
-	userUUID, err := uuid.Parse(in.GroupId)
+	groupUUID, err := uuid.Parse(in.GroupId)
 	if err != nil {
 		return nil, fmt.Errorf("invalid group id: %w", err)
 	}
 
-	users, err := s.group.GetGroupUsers(ctx, userUUID)
+	users, err := s.group.GetGroupUsers(ctx, groupUUID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get users: %w", err)
 	}

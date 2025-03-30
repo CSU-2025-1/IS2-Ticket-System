@@ -7,3 +7,8 @@ type User struct {
 	Login    string
 	Password string
 }
+
+type UserInfo struct {
+	UUID  uuid.UUID
+	Login string
+}

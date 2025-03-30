@@ -16,7 +16,7 @@ type KafkaUserStream struct {
 
 func NewKafkaUserStream(cfg *config.KafkaConfig) *KafkaUserStream {
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  cfg.Brokers,
+		Brokers:  []string{cfg.Broker},
 		Topic:    cfg.Topic,
 		GroupID:  cfg.GroupID,
 		MinBytes: 10e3,
