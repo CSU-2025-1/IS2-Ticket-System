@@ -1,5 +1,5 @@
 database:
-  host: "localhost"
+  host: "db"
   port: "5432"
   username: "satoro"
   password: "gojo"
@@ -7,8 +7,8 @@ database:
   max_conns: 3
 
 hydra:
-  admin_url: "http://localhost:4445/admin"
-  debug: false
+  admin_url: "http://hydra:4445"
+  debug: true
 
 server:
   address: ":8080"
@@ -16,9 +16,14 @@ server:
 grpc:
   address: ":8081"
 
+hash:
+  salt: "somesalt"
+  cost: 10
+
 kafka:
-  brokers: "localhost:9092"
+  broker: "kafka:9092"
   topic: "new_users"
+  group_id": "auth_service_1"
 
 consul:
   consul_address: "consul:8500"

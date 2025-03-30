@@ -100,10 +100,8 @@ services:
       - "8080:8080"
       - "8081:8081"
     volumes:
-      - ./auth-service/config:/app/config
-      - ./auth-service/hydra:/app/hydra
-    environment:
-      - CONFIG_PATH=/app/config/config.yaml
+      - ./docker/auth/config/config.yaml:/config/config.yaml
+      - ./docker/auth/config/clients.json:/hydra/clients.json
     depends_on:
       - db
       - hydra
@@ -120,7 +118,7 @@ services:
     ports:
       - "8082:8080"
     volumes:
-      - ./user-manager/config:/app/config
+      - ./docker/user-manager/config:/config
     depends_on:
       - db
       - kafka
@@ -135,6 +133,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8083:8080"
+    volumes:
+      - ./docker/notification/.env:/.env
     depends_on:
       - db
       - kafka
@@ -147,6 +147,8 @@ services:
     build:
       context: ./gateway
       dockerfile: Dockerfile
+    volumes:
+      - ./docker/gateway/.env:/.env
     ports:
       - "80:80"
     depends_on:

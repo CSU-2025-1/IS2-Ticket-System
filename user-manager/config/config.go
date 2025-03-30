@@ -30,11 +30,6 @@ type GrpcConfig struct {
 	Address string `yaml:"address"`
 }
 
-type HashConfig struct {
-	Salt string `yaml:"salt"`
-	Cost int    `yaml:"cost"`
-}
-
 func Parse(path string) (Config, error) {
 	file, err := os.Open(path)
 	if err != nil {

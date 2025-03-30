@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"github.com/segmentio/kafka-go"
 	"log/slog"
+	"time"
 )
 
 type KafkaUserStream struct {
@@ -21,6 +22,10 @@ func NewKafkaUserStream(cfg *config.KafkaConfig) *KafkaUserStream {
 		GroupID:  cfg.GroupID,
 		MinBytes: 10e3,
 		MaxBytes: 10e6,
+		Dialer: &kafka.Dialer{
+			Timeout:   10 * time.Second, // Таймаут подключения
+			DualStack: true,
+		},
 	})
 
 	return &KafkaUserStream{

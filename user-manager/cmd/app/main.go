@@ -18,7 +18,11 @@ func main() {
 	}
 
 	consulClient := consul.New(*cfg.Consul)
-	serviceUUID, err := consulClient.Register("user-manager", "user-manager", 8080)
+	if err := consulClient.Configure(); err != nil {
+		log.Fatalf("failed to configure consul client: %s", err.Error())
+	}
+
+	serviceUUID, err := consulClient.Register("public-user-manager", "user-manager", 8080)
 	if err != nil {
 		log.Fatal("register service error", err.Error())
 	}

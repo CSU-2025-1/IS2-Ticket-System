@@ -15,8 +15,7 @@ RUN go build -a -ldflags='-s' -trimpath -o /app/bin/app /app/cmd/app/main.go
 FROM scratch
 
 COPY --from=builder /app/bin/app ./
-COPY --from=builder /app/config/config.yaml ./config/config.yaml
-COPY --from=builder /app/hydra/clients.json ./hydra/clients.json
+COPY ./migrations ./migrations
 
 EXPOSE 8080
 
