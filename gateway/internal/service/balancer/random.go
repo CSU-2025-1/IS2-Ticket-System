@@ -1,6 +1,7 @@
 package balancer
 
 import (
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"time"
@@ -36,6 +37,10 @@ func (r *Random) GetAddress(serviceType string) (address string, err error) {
 	addresses, err := r.registry.GetAllWithType(serviceType)
 	if err != nil {
 		return "", err
+	}
+
+	if len(addresses) == 0 {
+		return "", errors.New("zero addresses received while balancing")
 	}
 
 	return addresses[r.randomizer.Uint64()%uint64(len(address))], nil

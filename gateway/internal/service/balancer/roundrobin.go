@@ -1,6 +1,7 @@
 package balancer
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"sync/atomic"
@@ -39,6 +40,10 @@ func (r *RoundRobin) GetAddress(serviceType string) (address string, err error) 
 	addresses, err := r.registry.GetAllWithType(serviceType)
 	if err != nil {
 		return "", err
+	}
+
+	if len(addresses) == 0 {
+		return "", errors.New("zero addresses received while balancing")
 	}
 
 	return addresses[(r.currentRoundRobinIndex.Load())%int64(len(addresses))], nil
