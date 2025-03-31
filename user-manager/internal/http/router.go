@@ -12,6 +12,7 @@ func SetupRouter(repository repository.Manager) *gin.Engine {
 
 	health := handler.NewHealthHandler()
 	r.Any("/health", health.Health)
+	r.Any("/check", health.Health)
 
 	api := r.Group("/api/v1/users")
 	api.Use(middleware.AuthMiddleware())

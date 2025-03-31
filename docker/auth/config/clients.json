@@ -4,18 +4,14 @@
     "name": "My OAuth Client",
     "secret": "my-secret",
     "scopes": [
-      "openid",
-      "profile",
-      "email",
-      "offline"
+      "offline_access"
     ],
     "grant_types": [
       "authorization_code",
       "refresh_token"
     ],
     "response_types": [
-      "code",
-      "id_token"
+      "code"
     ],
     "redirect_uris": [
       "http://localhost:3000/callback"

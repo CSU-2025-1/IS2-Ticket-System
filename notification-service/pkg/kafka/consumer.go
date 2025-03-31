@@ -1,7 +1,6 @@
 package kafka
 
 import (
-	"errors"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/goccy/go-json"
@@ -74,8 +73,7 @@ func RunConsumer[TValue any](consumer *Consumer, logger logger, output chan TVal
 		case kafka.PartitionEOF:
 			logger.Infof("Kafka.Consumer.RunConsumer: partition end for: %s", eventType.String())
 		case kafka.Error:
-			logger.Infof("Kafka.Consumer.RunConsumer: failed to consume message: %s", eventType.String())
-			return errors.New(eventType.Error())
+			logger.Errorf("Kafka.Consumer.RunConsumer: failed to consume message: %s", eventType.String())
 		}
 	}
 }

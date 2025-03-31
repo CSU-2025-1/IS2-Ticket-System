@@ -1,10 +1,10 @@
 urls:
-  login: https://example.com/login
-  consent: https://example.com/consent
-  logout: https://example.com/logout
+  login: http://localhost:3000/login
+  consent: http://localhost:3000/consent
+  logout: http://localhost:3000/logout
   self:
     admin: http://hydra:4445
-    public: https://example.com
+    public: http://localhost:4444
 secrets:
   cookie:
     - the-old-cookie-encryption-key
@@ -15,3 +15,17 @@ ttl:
 
 log:
   leak_sensitive_values: true
+
+serve:
+  public:
+    cors:
+      enabled: true
+      allowed_origins:
+        - "*"
+      allowed_methods:
+        - GET
+        - POST
+        - OPTIONS
+      allowed_headers:
+        - Content-Type
+      allow_credentials: true

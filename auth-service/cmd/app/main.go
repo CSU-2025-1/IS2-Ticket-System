@@ -5,6 +5,7 @@ import (
 	"auth-service/internal/app"
 	"context"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -51,6 +52,7 @@ func main() {
 
 	<-stop
 
+	slog.Info("shutdown signal received")
 	application.Shutdown(ctx)
 
 }

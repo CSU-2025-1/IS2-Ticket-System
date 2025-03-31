@@ -30,6 +30,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("login redirect", slog.String("url", redirectURL))
 	ctx.Redirect(http.StatusMovedPermanently, redirectURL)
 }
 
@@ -47,5 +48,6 @@ func (c *Controller) Consent(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("consent redirect", slog.String("url", redirectURL))
 	ctx.Redirect(http.StatusMovedPermanently, redirectURL)
 }

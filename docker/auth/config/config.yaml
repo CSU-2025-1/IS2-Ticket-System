@@ -8,7 +8,7 @@ database:
 
 hydra:
   admin_url: "http://hydra:4445"
-  debug: true
+  debug: false
 
 server:
   address: ":8080"

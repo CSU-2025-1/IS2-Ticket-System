@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
+	"log/slog"
 	"math/rand"
 	"strconv"
+	"time"
 )
 
 // Client api wrapper for work with Consul
@@ -152,7 +154,16 @@ func (c *Client) Register(serviceType, address string, port uint16) (registeredS
 		},
 	}
 
-	return registeredServiceUUID, c.consul.Agent().ServiceRegister(registration)
+	for {
+		err := c.consul.Agent().ServiceRegister(registration)
+		if err != nil {
+			slog.Warn("consul connect failed, retry...")
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		slog.Info("consul register success")
+		return registeredServiceUUID, nil
+	}
 }
 
 // Deregister sends request for deregister service into Consul cluster

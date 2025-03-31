@@ -41,7 +41,7 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to configure consul client: %w", err)
 	}
 
-	serviceUUID, err := consulClient.Register("    volumes:\n      - ./docker/user-manager/config:/config", "auth", 8080)
+	serviceUUID, err := consulClient.Register("public-auth-service", "auth-service", 8080)
 	if err != nil {
 		return nil, fmt.Errorf("failed to register auth service: %w", err)
 	}
