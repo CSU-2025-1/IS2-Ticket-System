@@ -1,0 +1,26 @@
+database:
+  host: "localhost"
+  port: "5432"
+  username: "satoro"
+  password: "gojo"
+  database: "ticket-system"
+  max_conns: 3
+
+hydra:
+  admin_url: "http://localhost:4445/admin"
+  debug: false
+
+server:
+  address: ":8080"
+
+grpc:
+  address: ":8081"
+
+kafka:
+  brokers: "localhost:9092"
+  topic: "new_users"
+
+consul:
+  consul_address: "localhost:8500"
+  health_check_interval: "10s"
+  health_check_timeout: "10s"
