@@ -1,0 +1,15 @@
+kafka:
+  broker: "kafka:9092"
+  topic: "ticket.creation"
+
+postgres:
+  host: "db"
+  port: "5432"
+  username: "satoro"
+  password: "gojo"
+  database: "ticket-system"
+
+consul:
+  consul_address: "consul:8500"
+  health_check_interval: "10s"
+  health_check_timeout: "10s"

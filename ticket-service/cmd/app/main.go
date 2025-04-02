@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-const connection = "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s"
+const connection = "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable"
 
 type Config struct {
 	Postgres struct {
@@ -64,7 +64,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	serviceUuuid, err := consul.Register("public-ticker-service", "ticket", 8080)
+	serviceUuuid, err := consul.Register("public-ticket-service", "ticket", 8080)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,7 +76,6 @@ func main() {
 		config.Postgres.Username,
 		config.Postgres.Password,
 		config.Postgres.Database,
-		"false",
 	)
 
 	err = migrator.MigratePostgres(context.Background(), connStr)
