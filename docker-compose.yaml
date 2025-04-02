@@ -126,6 +126,21 @@ services:
     networks:
       - my-net
 
+  ticket:
+    build:
+      context: ./ticket-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    volumes:
+      - ./docker/ticket/config:/config
+    depends_on:
+      - db
+      - kafka
+      - consul
+    networks:
+      - my-net
+
   # Notification service
   notification-service:
     build:

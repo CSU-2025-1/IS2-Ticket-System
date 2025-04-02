@@ -1,16 +1,14 @@
 package migrator
 
 import (
-	"auth-service/internal/repository/postgres"
 	"context"
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
 )
 
-func MigratePostgres(ctx context.Context, config postgres.Config) error {
-	connStr := config.ToConnString()
-	db, err := goose.OpenDBWithDriver("postgres", connStr)
+func MigratePostgres(ctx context.Context, conStr string) error {
+	db, err := goose.OpenDBWithDriver("postgres", conStr)
 	if err != nil {
 		return fmt.Errorf("migrator: %w", err)
 	}
