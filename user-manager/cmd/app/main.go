@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"user-mananger/cmd/migrator"
 	"user-mananger/config"
 	"user-mananger/internal/http"
 	"user-mananger/internal/repository"
@@ -15,6 +16,11 @@ func main() {
 	cfg, err := config.Parse("config/config.yaml")
 	if err != nil {
 		log.Fatal("parse config file error", err.Error())
+	}
+
+	err = migrator.MigratePostgres(context.Background(), *cfg.Database)
+	if err != nil {
+		log.Fatal("migrate postgres error", err.Error())
 	}
 
 	consulClient := consul.New(*cfg.Consul)

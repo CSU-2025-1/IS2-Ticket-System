@@ -38,7 +38,7 @@ func (r Repository) GetUserByLogin(ctx context.Context, login string) (*entity.U
 func (r Repository) CreateUser(ctx context.Context, user *entity.User) error {
 	query := `insert into auth.users_auth_data(uuid, login, password) values ($1, $2, $3)`
 
-	_, err := r.db.Exec(ctx, query, user.UUID, user.Password)
+	_, err := r.db.Exec(ctx, query, user.UUID, user.Login, user.Password)
 	if err != nil {
 		return fmt.Errorf("user repo: create user: %w", err)
 	}

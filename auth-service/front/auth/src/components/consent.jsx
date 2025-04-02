@@ -12,7 +12,7 @@ const ConsentForm = () => {
     const [error, setError] = useState(null);
 
     // URL вашего API endpoint
-    const FORM_ACTION_URL = 'http://localhost/api/auth/consent';
+    const FORM_ACTION_URL = '/api/auth/consent';
 
     const handleSubmit = (e) => {
         // Не вызываем preventDefault, чтобы форма отправилась стандартным способом

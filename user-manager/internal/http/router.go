@@ -14,7 +14,7 @@ func SetupRouter(repository repository.Manager) *gin.Engine {
 	r.Any("/health", health.Health)
 	r.Any("/check", health.Health)
 
-	api := r.Group("/api/v1/users")
+	api := r.Group("/api/users")
 	api.Use(middleware.AuthMiddleware())
 
 	usersHandler := handler.NewUsersHandler(repository.User, repository.AuthData)

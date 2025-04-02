@@ -14,7 +14,7 @@
       "code"
     ],
     "redirect_uris": [
-      "http://localhost:3000/callback"
+      "http://localhost/callback"
     ],
     "token_endpoint_auth_method": "client_secret_basic"
   }

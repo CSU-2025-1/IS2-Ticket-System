@@ -1,5 +1,5 @@
 database:
-  host: "localhost"
+  host: "db"
   port: "5432"
   username: "satoro"
   password: "gojo"
@@ -7,7 +7,7 @@ database:
   max_conns: 3
 
 hydra:
-  admin_url: "http://localhost:4445/admin"
+  admin_url: "http://hydra:4445"
   debug: false
 
 http:

@@ -150,12 +150,24 @@ services:
     volumes:
       - ./docker/gateway/.env:/.env
     ports:
-      - "80:80"
+      - "81:81"
     depends_on:
       - auth-service
       - user-manager
       - notification-service
       - consul
+    networks:
+      - my-net
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/front:/usr/share/nginx/html
+    depends_on:
+      - gateway
     networks:
       - my-net
 

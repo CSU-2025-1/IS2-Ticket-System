@@ -25,7 +25,7 @@ const AuthForm = () => {
         <div className="center">
             {error && <p>{error}</p>}
 
-            <form onSubmit={handleSubmit} action="http://localhost/api/auth/login" method="POST" className="form">
+            <form onSubmit={handleSubmit} action="/api/auth/login" method="POST" className="form">
                 <div className="title">
                     Введите логин и пароль
                 </div>
