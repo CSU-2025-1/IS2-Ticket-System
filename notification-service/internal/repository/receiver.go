@@ -26,12 +26,8 @@ func (r *ReceiverRepository) CreateMailReceiver(ctx context.Context, userUUID uu
 }
 
 func (r *ReceiverRepository) GetAllMailReceiversByUUIDs(ctx context.Context, ids []uuid.UUID) ([]model.Receiver, error) {
-	stringIds := make([]string, len(ids))
-	for i := range ids {
-		stringIds[i] = ids[i].String()
-	}
 	sql := `SELECT id, mail FROM notification.mail_receiver WHERE id = ANY($1)`
-	rows, err := r.db.Query(ctx, sql, stringIds)
+	rows, err := r.db.Query(ctx, sql, ids)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return []model.Receiver{}, nil
