@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
 	"log/slog"
-	"math/rand"
+	"math/rand/v2"
 	"strconv"
 	"time"
 )
@@ -22,6 +22,12 @@ type Client struct {
 func New(config Config) *Client {
 	return &Client{
 		config: config,
+		randomizer: rand.New(
+			rand.NewPCG(
+				uint64(time.Now().UnixMicro()),
+				uint64(time.Now().UnixNano()),
+			),
+		),
 	}
 }
 
@@ -95,7 +101,7 @@ func (c *Client) GetRandomServiceByType(serviceType string) (address string, err
 		return "", err
 	}
 
-	return allServices[c.randomizer.Intn(len(allServices))], nil
+	return allServices[c.randomizer.IntN(len(allServices))], nil
 }
 
 // GetFirstServiceByType returns the first found service address with type = serviceType
