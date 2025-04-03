@@ -18,7 +18,7 @@ type (
 	}
 
 	authenticator interface {
-		Auth(token string) (map[string]string, error)
+		Auth(ctx context.Context, token string) (map[string]string, error)
 	}
 
 	logger interface {
@@ -167,5 +167,5 @@ func (p *Proxy) Authenticate(request *http.Request) (authData map[string]string,
 		return nil, errors.New("not a Bearer token")
 	}
 
-	return p.authenticator.Auth(parts[1])
+	return p.authenticator.Auth(request.Context(), parts[1])
 }

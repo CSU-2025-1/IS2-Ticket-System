@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"gateway/config"
+	"gateway/internal/entity"
 	"gateway/internal/repository"
 	"gateway/internal/service/balancer"
 	"gateway/internal/service/proxy"
 	"gateway/internal/service/registry"
 	"gateway/pkg/consul"
+	grpcPkg "gateway/pkg/grpc"
 	"gateway/pkg/logger"
 	"sync"
 )
@@ -75,7 +77,7 @@ func (a *Application) runServices(ctx context.Context) {
 
 func (a *Application) configureDependencies() error {
 	appLogger := logger.NewPrettyStdout(logger.Debug)
-	auth := repository.NewAuthMock()
+
 	consulClient := consul.New(consul.Config(a.config.Consul))
 
 	if err := consulClient.Configure(); err != nil {
@@ -83,6 +85,8 @@ func (a *Application) configureDependencies() error {
 	}
 
 	serviceRegistry := registry.New(consulClient, appLogger, a.config.Registry)
+
+	auth := repository.NewAuth(grpcPkg.New(appLogger, consulClient, entity.PublicAuthServiceType))
 
 	var gatewayProxy *proxy.Proxy
 	switch a.config.Proxy.BalancerAlgorithm {
