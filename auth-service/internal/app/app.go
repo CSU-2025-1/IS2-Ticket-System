@@ -20,8 +20,9 @@ type App struct {
 	address string
 	router  *gin.Engine
 
-	consul *consul.Client
-	uuid   string
+	consul      *consul.Client
+	uuid        string
+	privateUuid string
 
 	grpsAddress string
 	controller  *handler.Controller
@@ -42,6 +43,11 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 	}
 
 	serviceUUID, err := consulClient.Register("public-auth-service", "auth-service", 8080)
+	if err != nil {
+		return nil, fmt.Errorf("failed to register auth service: %w", err)
+	}
+
+	serviceUUID2, err := consulClient.Register("private-auth-service", "auth-service", 8080)
 	if err != nil {
 		return nil, fmt.Errorf("failed to register auth service: %w", err)
 	}
@@ -67,8 +73,9 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 	return &App{
 		controller: controller,
 
-		consul: consulClient,
-		uuid:   serviceUUID,
+		consul:      consulClient,
+		uuid:        serviceUUID,
+		privateUuid: serviceUUID2,
 
 		address: cfg.Server.Address,
 		router:  router,
@@ -123,4 +130,5 @@ func (a App) Run(ctx context.Context) error {
 func (a App) Shutdown(ctx context.Context) {
 	a.controller.Repository.Close()
 	_ = a.consul.Deregister(a.uuid)
+	_ = a.consul.Deregister(a.privateUuid)
 }

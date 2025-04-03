@@ -59,7 +59,7 @@ func (a *App) Run(ctx context.Context) error {
 		grpc.New(
 			appLogger,
 			consulClient,
-			"public-user-manager",
+			"private-user-manager",
 		),
 	)
 	receiverRepository := repository.NewReceiverRepository(pool)

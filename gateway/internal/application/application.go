@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"gateway/config"
-	"gateway/internal/entity"
 	"gateway/internal/repository"
 	"gateway/internal/service/balancer"
 	"gateway/internal/service/proxy"
@@ -86,7 +85,7 @@ func (a *Application) configureDependencies() error {
 
 	serviceRegistry := registry.New(consulClient, appLogger, a.config.Registry)
 
-	auth := repository.NewAuth(grpcPkg.New(appLogger, consulClient, entity.PublicAuthServiceType))
+	auth := repository.NewAuth(grpcPkg.New(appLogger, consulClient, "private-auth-service"))
 
 	var gatewayProxy *proxy.Proxy
 	switch a.config.Proxy.BalancerAlgorithm {

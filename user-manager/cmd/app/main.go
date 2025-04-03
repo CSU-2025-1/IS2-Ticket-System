@@ -34,6 +34,12 @@ func main() {
 	}
 	defer consulClient.Deregister(serviceUUID)
 
+	serviceUUID2, err := consulClient.Register("private-user-manager", "user-manager", 8080)
+	if err != nil {
+		log.Fatal("register service error", err.Error())
+	}
+	defer consulClient.Deregister(serviceUUID2)
+
 	ctx := context.Background()
 
 	db, err := postgres.Connect(ctx, cfg.Database)

@@ -6,6 +6,9 @@ const (
 	PublicUserManagerServiceType  = "public-user-manager"
 	PublicTicketServiceType       = "public-ticket-service"
 	PublicNotificationServiceType = "public-notification-service"
+	PrivateAuthServiceType        = "private-auth-service"
+	PrivateUserManagerServiceType = "private-user-manager"
+	PrivateTicketServiceType      = "private-ticket-service"
 )
 
 var ServiceTypes = []string{
@@ -13,4 +16,7 @@ var ServiceTypes = []string{
 	PublicUserManagerServiceType,
 	PublicTicketServiceType,
 	PublicNotificationServiceType,
+	PrivateAuthServiceType,
+	PrivateUserManagerServiceType,
+	PrivateTicketServiceType,
 }
