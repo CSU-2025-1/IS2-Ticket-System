@@ -3,7 +3,9 @@ package grpc
 import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"strings"
 	"sync"
+	"time"
 )
 
 type (
@@ -31,8 +33,9 @@ func New(logger logger, registry registry, serviceType string) *Pool {
 					logger.Errorf("Pool.New: %s", err.Error())
 					return err
 				}
+				newAddr := strings.Replace(strings.Split(addr, ":")[1], "/", "", -1)
 
-				conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+				conn, err := grpc.NewClient(newAddr+":8081", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithIdleTimeout(time.Second))
 				if err != nil {
 					logger.Errorf("Pool.New: %s", err.Error())
 					return err
