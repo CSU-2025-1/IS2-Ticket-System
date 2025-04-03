@@ -5,13 +5,13 @@ services:
   db:
     image: postgres:17
     ports:
-      - "5432:5432"
+      - "5437:5432"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-satoro}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gojo}
-      POSTGRES_DB: ${POSTGRES_DB:-ticket-system}
+      POSTGRES_USER: "satoro"
+      POSTGRES_PASSWORD: "gojo"
+      POSTGRES_DB: "ticket-system"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/db_data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - my-net
