@@ -177,7 +177,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - "8102:80"
+      - "80:80"
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./docker/front:/usr/share/nginx/html

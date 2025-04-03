@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
-	"math/rand"
+	"log/slog"
+	"math/rand/v2"
 	"strconv"
+	"time"
 )
 
 // Client api wrapper for work with Consul
@@ -20,6 +22,12 @@ type Client struct {
 func New(config Config) *Client {
 	return &Client{
 		config: config,
+		randomizer: rand.New(
+			rand.NewPCG(
+				uint64(time.Now().UnixMicro()),
+				uint64(time.Now().UnixNano()),
+			),
+		),
 	}
 }
 
@@ -93,7 +101,7 @@ func (c *Client) GetRandomServiceByType(serviceType string) (address string, err
 		return "", err
 	}
 
-	return allServices[c.randomizer.Intn(len(allServices))], nil
+	return allServices[c.randomizer.IntN(len(allServices))], nil
 }
 
 // GetFirstServiceByType returns the first found service address with type = serviceType
@@ -152,7 +160,16 @@ func (c *Client) Register(serviceType, address string, port uint16) (registeredS
 		},
 	}
 
-	return registeredServiceUUID, c.consul.Agent().ServiceRegister(registration)
+	for {
+		err := c.consul.Agent().ServiceRegister(registration)
+		if err != nil {
+			slog.Warn("consul connect failed, retry...")
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		slog.Info("consul register success")
+		return registeredServiceUUID, nil
+	}
 }
 
 // Deregister sends request for deregister service into Consul cluster
