@@ -20,8 +20,9 @@ hash:
   salt: "somesalt"
   cost: 10
 
-kafka:
-  brokers:
-    - "localhost:9092"
-  topic: "new_users"
-  group_id": "auth_service_1"
+rabbit:
+  host: "localhost"
+  port: 5672
+  user: "admin"
+  password: "password"
+  queue: "new_users"

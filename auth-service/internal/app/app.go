@@ -52,7 +52,7 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 		return nil, fmt.Errorf("failed to register auth service: %w", err)
 	}
 
-	repositories, err := repository.Init(ctx, cfg.Database, cfg.Hydra, cfg.Kafka)
+	repositories, err := repository.Init(ctx, cfg.Database, cfg.Hydra)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize repositories: %w", err)
 	}
@@ -64,7 +64,10 @@ func Build(ctx context.Context, cfg config.Config) (*App, error) {
 		Service:    services,
 	}
 
-	userConsumer := consumer.NewConsumer(services.Register, repositories.UserStream)
+	userConsumer, err := consumer.NewConsumer(services.Register, *cfg.Rabbit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize user consumer: %w", err)
+	}
 
 	grpcServer := grpc.NewServer(repositories.Hydra)
 

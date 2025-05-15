@@ -18,19 +18,19 @@ type DB interface {
 	GetTickets(ctx context.Context, status string) ([]core.Ticket, error)
 }
 
-type Kafka interface {
-	SendMessageTicketCreation(ticket core.Ticket) error
+type Rabbit interface {
+	Save(ctx context.Context, ticket core.Ticket) error
 }
 
 type Handler struct {
-	db    DB
-	kafka Kafka
+	db     DB
+	rabbit Rabbit
 }
 
-func New(db DB, kafka Kafka) Handler {
+func New(db DB, rabbit Rabbit) Handler {
 	return Handler{
-		db:    db,
-		kafka: kafka,
+		db:     db,
+		rabbit: rabbit,
 	}
 }
 
@@ -71,7 +71,10 @@ func (h *Handler) CreateTicket(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.kafka.SendMessageTicketCreation(ticket); err != nil {
+	if err := h.rabbit.Save(ctx, ticket); err != nil {
+		slog.Error(err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to send ticket"})
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, ticket)

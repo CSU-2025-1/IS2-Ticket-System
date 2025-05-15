@@ -1,6 +1,9 @@
-kafka:
-  brokers: "localhost:9092"
-  topic: "ticket.creation"
+rabbit:
+  host: "localhost"
+  port: 5672
+  user: "admin"
+  password: "password"
+  queue: "new_tickets"
 
 postgres:
   host: "localhost"

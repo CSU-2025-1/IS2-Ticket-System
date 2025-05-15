@@ -4,6 +4,7 @@ import (
 	"auth-service/internal/repository/postgres"
 	"auth-service/pkg/consul"
 	"auth-service/pkg/hydra"
+	"auth-service/pkg/rabbitmq"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io"
@@ -16,7 +17,7 @@ type Config struct {
 	Server   *ServerConfig    `yaml:"server"`
 	Hash     *HashConfig      `yaml:"hash"`
 	Grpc     *GrpcConfig      `yaml:"grpc"`
-	Kafka    *KafkaConfig     `yaml:"kafka"`
+	Rabbit   *rabbitmq.Config `yaml:"rabbit"`
 	Consul   *consul.Config   `yaml:"consul"`
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 type UserSaver interface {
-	SaveAuthData(ctx context.Context, user entity.User) error
+	Save(ctx context.Context, authData entity.User) error
 }
 
 type UserController interface {
@@ -50,7 +50,7 @@ func (u *UsersHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	err = u.saver.SaveAuthData(c, entity.User{
+	err = u.saver.Save(c, entity.User{
 		UUID:     userUUID,
 		Login:    req.Login,
 		Password: req.Password,

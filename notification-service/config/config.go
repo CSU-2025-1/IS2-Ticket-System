@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
+	"notification-service/pkg/rabbitmq"
 )
 
 // Config is a model for configuration params
 type Config struct {
-	Mail     Mail     `env-prefix:"MAIL_"`
-	Kafka    Kafka    `env-prefix:"KAFKA_"`
-	Postgres Postgres `env-prefix:"POSTGRES_"`
-	Http     Http     `env-prefix:"HTTP_"`
-	Consul   Consul   `env-prefix:"CONSUL_"`
+	Mail     Mail            `env-prefix:"MAIL_"`
+	Rabbit   rabbitmq.Config `env-prefix:"RABBIT_"`
+	Postgres Postgres        `env-prefix:"POSTGRES_"`
+	Http     Http            `env-prefix:"HTTP_"`
+	Consul   Consul          `env-prefix:"CONSUL_"`
 }
 
 // LoadConfig load config form envs

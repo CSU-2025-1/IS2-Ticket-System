@@ -7,7 +7,7 @@ import (
 	"notification-service/internal/repository"
 	"notification-service/internal/service"
 	"notification-service/internal/transport/http"
-	"notification-service/internal/transport/kafka"
+	"notification-service/internal/transport/rabbitmq"
 	consulPkg "notification-service/pkg/consul"
 	"notification-service/pkg/grpc"
 	loggerPkg "notification-service/pkg/logger"
@@ -93,12 +93,12 @@ func (a *App) Run(ctx context.Context) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := kafka.New(
-			a.config.Kafka,
+		if err := rabbitmq.New(
 			repositoryManager,
 			serviceManager,
+			a.config.Rabbit,
 		).Run(ctx); err != nil {
-			appLogger.Errorf("ошибка запуска kafka сервера")
+			appLogger.Errorf("ошибка запуска kafka сервера", "err", err.Error())
 		}
 
 	}()

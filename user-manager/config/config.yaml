@@ -16,9 +16,12 @@ server:
 grpc:
   address: ":8081"
 
-kafka:
-  brokers: "localhost:9092"
-  topic: "new_users"
+rabbit:
+  host: "localhost"
+  port: 5672
+  user: "admin"
+  password: "password"
+  queue: "new_users"
 
 consul:
   consul_address: "localhost:8500"

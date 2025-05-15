@@ -7,7 +7,6 @@ import (
 	"user-mananger/config"
 	"user-mananger/internal/http"
 	"user-mananger/internal/repository"
-	"user-mananger/internal/repository/kafka"
 	"user-mananger/internal/repository/postgres"
 	"user-mananger/pkg/consul"
 )
@@ -48,12 +47,7 @@ func main() {
 	}
 	defer db.Close()
 
-	broker, err := kafka.Connect(ctx, *cfg.Kafka)
-	if err != nil {
-		log.Fatal("connect kafka error", err.Error())
-	}
-
-	repositories := repository.NewManager(db, broker)
+	repositories := repository.NewManager(db, *cfg.Rabbit)
 
 	r := http.SetupRouter(*repositories)
 

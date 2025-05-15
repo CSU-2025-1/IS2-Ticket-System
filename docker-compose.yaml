@@ -63,23 +63,19 @@ services:
     networks:
       - my-net
 
-  # Kafka
-  kafka:
-    image: bitnami/kafka:3.7.0
-    ports:
-      - "9092:9092"
+  # Rabbit MQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
     environment:
-      - KAFKA_ENABLE_KRAFT=yes
-      - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-      - kafka_data:/bitnami/kafka
+      - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - my-net
 
@@ -105,7 +101,7 @@ services:
     depends_on:
       - db
       - hydra
-      - kafka
+      - rabbitmq
       - consul
     networks:
       - my-net
@@ -121,7 +117,7 @@ services:
       - ./docker/user-manager/config:/config
     depends_on:
       - db
-      - kafka
+      - rabbitmq
       - consul
     networks:
       - my-net
@@ -136,7 +132,7 @@ services:
       - ./docker/ticket/config:/config
     depends_on:
       - db
-      - kafka
+      - rabbitmq
       - consul
     networks:
       - my-net
@@ -152,7 +148,7 @@ services:
       - ./docker/notification/.env:/.env
     depends_on:
       - db
-      - kafka
+      - rabbitmq
       - consul
     networks:
       - my-net
@@ -189,7 +185,7 @@ services:
 volumes:
   db_data:
   redis_data:
-  kafka_data:
+  rabbitmq_data:
 
 networks:
   my-net:

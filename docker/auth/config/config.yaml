@@ -20,10 +20,12 @@ hash:
   salt: "somesalt"
   cost: 10
 
-kafka:
-  broker: "kafka:9092"
-  topic: "new_users"
-  group_id": "auth_service_1"
+rabbit:
+  host: "rabbitmq"
+  port: 5672
+  user: "admin"
+  password: "password"
+  queue: "new_users"
 
 consul:
   consul_address: "consul:8500"

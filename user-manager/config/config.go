@@ -7,13 +7,14 @@ import (
 	"os"
 	"user-mananger/internal/repository/postgres"
 	"user-mananger/pkg/consul"
+	"user-mananger/pkg/rabbitmq"
 )
 
 type Config struct {
 	Database *postgres.Config `yaml:"database"`
 	Server   *HttpConfig      `yaml:"http"`
 	Grpc     *GrpcConfig      `yaml:"grpc"`
-	Kafka    *KafkaConfig     `yaml:"kafka"`
+	Rabbit   *rabbitmq.Config `yaml:"rabbit"`
 	Consul   *consul.Config   `yaml:"consul"`
 }
 
