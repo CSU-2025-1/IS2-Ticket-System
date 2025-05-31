@@ -5,39 +5,35 @@ import (
 	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log/slog"
+	"sync"
 )
 
 type JsonQueueAdapter[T any] struct {
-	conn    *amqp.Connection
-	channel *amqp.Channel
-	queue   string
+	pool      *ChannelPool
+	queue     string
+	wg        sync.WaitGroup
+	closeOnce sync.Once
 }
 
-func NewJsonQueueAdapter[T any](cfg Config) (*JsonQueueAdapter[T], error) {
-	conn, err := amqp.Dial(cfg.ToDSN())
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to RabbitMQ: %s", err)
-	}
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("failed to open a channel: %s", err)
-	}
-
+func NewJsonQueueAdapter[T any](pool *ChannelPool, queue string) *JsonQueueAdapter[T] {
 	return &JsonQueueAdapter[T]{
-		conn:    conn,
-		channel: ch,
-		queue:   cfg.Queue,
-	}, nil
+		pool:  pool,
+		queue: queue,
+	}
 }
 
 func (j *JsonQueueAdapter[T]) Consume(opts ...ConsumeOption) (<-chan T, error) {
+	ch, err := j.pool.Get()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel: %w", err)
+	}
+
 	opt := DefaultConsumeOption
 	if len(opts) > 0 {
 		opt = opts[0]
 	}
 
-	msgs, err := j.channel.Consume(
+	msgs, err := ch.Consume(
 		j.queue,
 		opt.Consumer,
 		opt.AutoAck,
@@ -47,26 +43,41 @@ func (j *JsonQueueAdapter[T]) Consume(opts ...ConsumeOption) (<-chan T, error) {
 		opt.Args,
 	)
 	if err != nil {
-		return nil, err
+		j.pool.Put(ch)
+		return nil, fmt.Errorf("failed to consume: %w", err)
 	}
 
-	channel := make(chan T)
+	output := make(chan T)
+	j.wg.Add(1)
+
 	go func() {
+		defer j.wg.Done()
+		defer close(output)
+		defer j.pool.Put(ch)
+
 		for d := range msgs {
 			var msg T
 			if err := json.Unmarshal(d.Body, &msg); err != nil {
-				slog.Error("[ Rabbit MQ failed unmarshal json message ]", slog.String("err", err.Error()))
+				slog.Error("failed to unmarshal json message", "error", err)
 				continue
 			}
-			channel <- msg
-			d.Ack(false)
+			output <- msg
+			if !opt.AutoAck {
+				d.Ack(false)
+			}
 		}
 	}()
 
-	return channel, nil
+	return output, nil
 }
 
 func (j *JsonQueueAdapter[T]) Publish(msg T, opts ...PublishOption) error {
+	ch, err := j.pool.Get()
+	if err != nil {
+		return fmt.Errorf("failed to get channel: %w", err)
+	}
+	defer j.pool.Put(ch)
+
 	opt := DefaultPublishOption
 	if len(opts) > 0 {
 		opt = opts[0]
@@ -74,10 +85,10 @@ func (j *JsonQueueAdapter[T]) Publish(msg T, opts ...PublishOption) error {
 
 	body, err := json.Marshal(msg)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal message: %w", err)
 	}
 
-	return j.channel.Publish(
+	return ch.Publish(
 		opt.Exchange,
 		j.queue,
 		opt.Mandatory,
@@ -91,6 +102,8 @@ func (j *JsonQueueAdapter[T]) Publish(msg T, opts ...PublishOption) error {
 }
 
 func (j *JsonQueueAdapter[T]) Close() {
-	j.channel.Close()
-	j.conn.Close()
+	j.closeOnce.Do(func() {
+		j.wg.Wait()
+		j.pool.Close()
+	})
 }

@@ -8,6 +8,7 @@ type Config struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Queue    string `yaml:"queue"`
+	PoolSize int    `yaml:"pool_size"`
 }
 
 func (c *Config) ToDSN() string {

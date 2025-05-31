@@ -22,6 +22,7 @@ rabbit:
   user: "admin"
   password: "password"
   queue: "new_users"
+  pool_size: 3
 
 consul:
   consul_address: "consul:8500"

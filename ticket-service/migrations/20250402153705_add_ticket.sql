@@ -2,9 +2,9 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 -- +goose StatementEnd
-CREATE SCHEMA ticket;
+CREATE SCHEMA IF NOT EXISTS ticket;
 
-CREATE TABLE ticket.tickets (
+CREATE TABLE IF NOT EXISTS ticket.tickets (
     uuid UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,

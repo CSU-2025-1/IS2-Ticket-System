@@ -19,16 +19,10 @@ type RabbitMQ struct {
 	writer *rabbitmq.Writer[Ticket]
 }
 
-func NewRabbitMQ(cfg rabbitmq.Config) (*RabbitMQ, error) {
-	r := &RabbitMQ{}
-
-	var err error
-	r.writer, err = rabbitmq.CreateJsonWriter[Ticket](cfg, rabbitmq.DefaultPublishOption)
-	if err != nil {
-		return nil, err
-	}
-
-	return r, nil
+func NewRabbitMQ(w *rabbitmq.Writer[Ticket]) (*RabbitMQ, error) {
+	return &RabbitMQ{
+		writer: w,
+	}, nil
 }
 
 func (r *RabbitMQ) Save(ctx context.Context, ticket core.Ticket) error {

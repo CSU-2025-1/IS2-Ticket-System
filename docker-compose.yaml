@@ -1,92 +1,6 @@
 version: '3.8'
 
 services:
-  # Database
-  db:
-    image: postgres:17
-    ports:
-      - "5437:5432"
-    environment:
-      POSTGRES_USER: "satoro"
-      POSTGRES_PASSWORD: "gojo"
-      POSTGRES_DB: "ticket-system"
-    volumes:
-      - db_data:/db_data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - my-net
-
-  # Ory/Hydra - for OAuth
-  hydra:
-    image: oryd/hydra:v2.2.0
-    ports:
-      - "4444:4444" # Public API
-      - "4445:4445" # Admin API, only for local tests
-    command: serve -c /etc/config/hydra/hydra.yml all --dev
-    volumes:
-      - type: bind
-        source: ./docker/hydra
-        target: /etc/config/hydra
-    environment:
-      - DSN=postgres://${POSTGRES_USER:-satoro}:${POSTGRES_PASSWORD:-gojo}@db:5432/${POSTGRES_DB:-ticket-system}?search_path=hydra&sslmode=disable
-    restart: unless-stopped
-    depends_on:
-      - hydra-migrate
-    networks:
-      - my-net
-
-  # Migrations for Ory/Hydra
-  hydra-migrate:
-    image: oryd/hydra:v2.2.0
-    environment:
-      - DSN=postgres://${POSTGRES_USER:-satoro}:${POSTGRES_PASSWORD:-gojo}@db:5432/${POSTGRES_DB:-ticket-system}?search_path=hydra&sslmode=disable
-    command: migrate -c /etc/config/hydra/hydra.yml sql -e --yes
-    volumes:
-      - type: bind
-        source: ./docker/hydra
-        target: /etc/config/hydra
-    restart: on-failure
-    depends_on:
-      - db
-    networks:
-      - my-net
-
-  # Redis
-  redis:
-    image: redis:7.4
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
-    networks:
-      - my-net
-
-  # Rabbit MQ
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: password
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - my-net
-
-  # Consul registry
-  consul:
-    image: consul:1.15.0
-    ports:
-      - "8500:8500"
-    networks:
-      - my-net
-
   # Auth service
   auth-service:
     build:
@@ -98,11 +12,6 @@ services:
     volumes:
       - ./docker/auth/config/config.yaml:/config/config.yaml
       - ./docker/auth/config/clients.json:/hydra/clients.json
-    depends_on:
-      - db
-      - hydra
-      - rabbitmq
-      - consul
     networks:
       - my-net
 
@@ -115,10 +24,6 @@ services:
       - "8082:8080"
     volumes:
       - ./docker/user-manager/config:/config
-    depends_on:
-      - db
-      - rabbitmq
-      - consul
     networks:
       - my-net
 
@@ -130,10 +35,6 @@ services:
       - "8084:8080"
     volumes:
       - ./docker/ticket/config:/config
-    depends_on:
-      - db
-      - rabbitmq
-      - consul
     networks:
       - my-net
 
@@ -146,10 +47,6 @@ services:
       - "8083:8080"
     volumes:
       - ./docker/notification/.env:/.env
-    depends_on:
-      - db
-      - rabbitmq
-      - consul
     networks:
       - my-net
 
@@ -166,27 +63,9 @@ services:
       - auth-service
       - user-manager
       - notification-service
-      - consul
     networks:
       - my-net
-
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./docker/front:/usr/share/nginx/html
-    depends_on:
-      - gateway
-    networks:
-      - my-net
-
-volumes:
-  db_data:
-  redis_data:
-  rabbitmq_data:
 
 networks:
   my-net:
-    driver: bridge
+    external: true

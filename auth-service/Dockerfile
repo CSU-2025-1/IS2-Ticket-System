@@ -16,6 +16,7 @@ FROM scratch
 
 COPY --from=builder /app/bin/app ./
 COPY ./migrations ./migrations
+COPY ./hydra ./hydra
 
 EXPOSE 8080
 

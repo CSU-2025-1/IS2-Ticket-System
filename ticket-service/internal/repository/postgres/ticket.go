@@ -3,17 +3,17 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"ticket-service/internal/core"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type TicketRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewTicketRepository(db *pgx.Conn) *TicketRepository {
+func NewTicketRepository(db *pgxpool.Pool) *TicketRepository {
 	return &TicketRepository{
 		db: db,
 	}

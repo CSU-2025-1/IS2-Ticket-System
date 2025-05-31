@@ -12,12 +12,12 @@ type ConsumeOption struct {
 }
 
 var DefaultConsumeOption = ConsumeOption{
-	"",
-	false,
-	false,
-	false,
-	false,
-	nil,
+	Consumer:  "",
+	AutoAck:   false,
+	Exclusive: false,
+	NoLocal:   false,
+	NoWait:    false,
+	Args:      nil,
 }
 
 func (c *ConsumeOption) Option() (string, bool, bool, bool, bool, amqp.Table) {

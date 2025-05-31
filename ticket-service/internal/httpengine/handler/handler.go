@@ -66,13 +66,13 @@ func (h *Handler) CreateTicket(ctx *gin.Context) {
 	}
 
 	if err := h.db.CreateTicket(ctx.Request.Context(), ticket); err != nil {
-		slog.Error(err.Error())
+		slog.Error("failed ti create ticket in postgres", "error", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create ticket"})
 		return
 	}
 
 	if err := h.rabbit.Save(ctx, ticket); err != nil {
-		slog.Error(err.Error())
+		slog.Error("failed ti create ticket in rabbit", "error", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to send ticket"})
 		return
 	}

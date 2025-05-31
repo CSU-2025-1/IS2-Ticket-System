@@ -14,7 +14,7 @@ const (
 
 var (
 	ModeToContentType = map[Mode]string{
-		ModeProto: "application/x-protobuf",
-		ModeJson:  "application/json",
+		ModeProto: ContentTypeProtobuf,
+		ModeJson:  ContentTypeJson,
 	}
 )

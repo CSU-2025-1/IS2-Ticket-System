@@ -3,11 +3,12 @@ package rabbitmq
 import "fmt"
 
 type Config struct {
-	Host     string `env:"HOST" env-default:"rabbitmq"`
-	Port     int    `env:"PORT" env-default:"5672"`
-	User     string `env:"USER" env-default:"admin"`
-	Password string `env:"PASSWORD" env-default:"password"`
-	Queue    string `env:"QUEUE" env-default:"new_tickets"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Queue    string `yaml:"queue"`
+	PoolSize int    `yaml:"pool_size"`
 }
 
 func (c *Config) ToDSN() string {

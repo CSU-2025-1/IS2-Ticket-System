@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -79,14 +79,26 @@ func main() {
 		log.Fatal(err)
 	}
 
-	db, err := pgx.Connect(context.Background(), connStr)
+	dbCfg, err := pgxpool.ParseConfig(connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dbCfg.MaxConns = 3
+
+	db, err := pgxpool.NewWithConfig(context.Background(), dbCfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ticketRepository := postgres.NewTicketRepository(db)
 
-	ticketSaver, err := rabbitRepo.NewRabbitMQ(config.Rabbit)
+	writer, err := rabbitmq.CreateJsonWriter[rabbitRepo.Ticket](config.Rabbit, rabbitmq.DefaultPublishOption)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ticketSaver, err := rabbitRepo.NewRabbitMQ(writer)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
